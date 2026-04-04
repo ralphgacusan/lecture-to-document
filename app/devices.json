@@ -1,0 +1,19 @@
+{
+  "devices": {
+    "rspi1001": {
+      "status": "idle",
+      "connected": true,
+      "last_seen": 1775298776
+    },
+    "rspi1002": {
+      "status": "pause",
+      "connected": false,
+      "last_seen": 0
+    },
+    "rspi1003": {
+      "status": "pause",
+      "connected": false,
+      "last_seen": 0
+    }
+  }
+}

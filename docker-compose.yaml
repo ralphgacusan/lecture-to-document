@@ -1,0 +1,13 @@
+services:
+  api:
+    build: .
+    container_name: lecture_to_document
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./output_docs:/app/output_docs
+      - ./app/credentials.json:/app/credentials.json
+    env_file:
+      - .env
+    restart: always

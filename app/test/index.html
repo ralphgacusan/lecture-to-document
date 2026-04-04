@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Image to DOCX/PDF</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: #f5f7fb;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+      }
+      .container {
+        background: #fff;
+        margin-top: 40px;
+        padding: 30px;
+        width: 100%;
+        max-width: 700px;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        display: flex;
+        flex-direction: column;
+      }
+      h2 {
+        margin-bottom: 10px;
+        color: #333;
+      }
+      .subtitle {
+        color: #777;
+        font-size: 14px;
+        margin-bottom: 20px;
+      }
+      input[type="file"] {
+        border: 2px dashed #d0d5dd;
+        padding: 15px;
+        border-radius: 8px;
+        width: 100%;
+        background: #fafafa;
+        cursor: pointer;
+        transition: 0.2s ease;
+      }
+      input[type="file"]:hover {
+        background: #f0f0f0;
+      }
+      #preview {
+        margin-top: 20px;
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 10px;
+        padding-bottom: 5px;
+      }
+      #preview img {
+        flex: 0 0 auto;
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #eee;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+      #preview img:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+      button {
+        margin-top: 15px;
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        background: #4f46e5;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+          0.15s ease,
+          transform 0.1s ease,
+          background 0.2s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      button:hover {
+        background: #4338ca;
+      }
+      button:active {
+        transform: scale(0.97);
+        background: #3b32a1;
+      }
+      button:disabled {
+        background: #7c6ff0;
+        cursor: not-allowed;
+        opacity: 1;
+      }
+      .button-spinner {
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top: 3px solid white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        animation: spin 1s linear infinite;
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: none;
+      }
+      @keyframes spin {
+        0% {
+          transform: translateY(-50%) rotate(0deg);
+        }
+        100% {
+          transform: translateY(-50%) rotate(360deg);
+        }
+      }
+      textarea {
+        margin-top: 15px;
+        width: 100%;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        padding: 10px;
+        font-size: 13px;
+        resize: none;
+        background: #fafafa;
+        height: 200px;
+        overflow-y: auto;
+        transition:
+          border-color 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+      textarea:focus {
+        border-color: #4f46e5;
+        box-shadow: 0 0 5px rgba(79, 70, 229, 0.3);
+      }
+      .status {
+        margin-top: 10px;
+        color: #555;
+        font-size: 14px;
+        text-align: center;
+        min-height: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>📄 Image to DOCX/PDF</h2>
+      <div class="subtitle">
+        Upload images, edit extracted text, then generate your document
+      </div>
+
+      <input type="file" id="images" multiple accept="image/*" />
+      <div id="preview"></div>
+
+      <button id="extractBtn" style="display: none">
+        <div class="button-spinner" id="extractSpinner"></div>
+        Extract Text
+      </button>
+
+      <h3 style="margin-top: 20px">Preview (Editable)</h3>
+      <textarea
+        id="docPreview"
+        placeholder="Extracted text will appear here..."
+      ></textarea>
+
+      <div style="display: flex; gap: 10px; margin-top: 15px">
+        <button
+          id="generateDocxBtn"
+          style="
+            flex: 1;
+            display: none;
+            position: relative;
+            background: #2b579a;
+          "
+        >
+          <div class="button-spinner" id="docxSpinner"></div>
+          Generate DOCX
+        </button>
+        <button
+          id="generatePdfBtn"
+          style="
+            flex: 1;
+            display: none;
+            position: relative;
+            background: #d43f3a;
+          "
+        >
+          <div class="button-spinner" id="pdfSpinner"></div>
+          Generate PDF
+        </button>
+      </div>
+
+      <button
+        id="downloadBtn"
+        style="display: none; margin-top: 15px; background: #4caf50"
+      >
+        Download File
+      </button>
+      <div class="status" id="fileStatus"></div>
+    </div>
+
+    <script>
+      // --- Get device_id from the URL ---
+      // Example URL: http://127.0.0.1:8000/deviceid1001/static/index.html
+      const pathParts = window.location.pathname.split("/").filter((p) => p); // remove empty parts
+      const DEVICE_ID = pathParts[0] || "default_device"; // first part is device_id
+      console.log("Device ID:", DEVICE_ID);
+
+      // --- Dynamic API URL ---
+      const API_URL = `${window.location.origin}/${DEVICE_ID}`; // e.g., http://127.0.0.1:8000/deviceid1001
+      console.log("API URL:", API_URL);
+
+      const imagesInput = document.getElementById("images");
+      const previewDiv = document.getElementById("preview");
+      const extractBtn = document.getElementById("extractBtn");
+      const docPreview = document.getElementById("docPreview");
+
+      const generateDocxBtn = document.getElementById("generateDocxBtn");
+      const generatePdfBtn = document.getElementById("generatePdfBtn");
+      const downloadBtn = document.getElementById("downloadBtn");
+      const fileStatus = document.getElementById("fileStatus");
+
+      const extractSpinner = document.getElementById("extractSpinner");
+      const docxSpinner = document.getElementById("docxSpinner");
+      const pdfSpinner = document.getElementById("pdfSpinner");
+
+      let lastGeneratedBlob = null;
+      let lastFileType = "";
+
+      // --- Preview images ---
+      imagesInput.addEventListener("change", () => {
+        previewDiv.innerHTML = "";
+        const files = imagesInput.files;
+        if (files.length === 0) {
+          extractBtn.style.display = "none";
+          return;
+        }
+
+        extractBtn.style.display = "block";
+        generateDocxBtn.style.display = "none";
+        generatePdfBtn.style.display = "none";
+        downloadBtn.style.display = "none";
+        fileStatus.textContent = "";
+
+        for (let i = 0; i < files.length; i++) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = document.createElement("img");
+            img.src = e.target.result;
+            previewDiv.appendChild(img);
+          };
+          reader.readAsDataURL(files[i]);
+        }
+      });
+
+      // --- Extract text ---
+      extractBtn.addEventListener("click", async () => {
+        const files = imagesInput.files;
+        if (files.length === 0) {
+          alert("Please select images");
+          return;
+        }
+
+        extractBtn.disabled = true;
+        extractSpinner.style.display = "block";
+        extractBtn.innerText = " Extracting text...";
+
+        const formData = new FormData();
+        for (let i = 0; i < files.length; i++)
+          formData.append("files", files[i]);
+
+        try {
+          const response = await fetch(`${API_URL}/extract_text`, {
+            method: "POST",
+            body: formData,
+          });
+          if (response.ok) {
+            const data = await response.json();
+            docPreview.value = data.preview_text;
+            generateDocxBtn.style.display = "block";
+            generatePdfBtn.style.display = "block";
+            fileStatus.textContent =
+              "Text extracted. Edit if needed, then generate DOCX or PDF.";
+          } else {
+            fileStatus.textContent = "Failed to extract text.";
+          }
+        } catch {
+          fileStatus.textContent = "Error connecting to server.";
+        } finally {
+          extractBtn.disabled = false;
+          extractSpinner.style.display = "none";
+          extractBtn.innerText = "Extract Text";
+        }
+      });
+
+      // --- Generate file ---
+      async function generateFile(type) {
+        const text = docPreview.value.trim();
+        if (!text) {
+          alert("Textarea is empty!");
+          return;
+        }
+
+        let btn = type === "docx" ? generateDocxBtn : generatePdfBtn;
+        let spinner = type === "docx" ? docxSpinner : pdfSpinner;
+
+        btn.disabled = true;
+        spinner.style.display = "block";
+        btn.innerText = ` Generating ${type.toUpperCase()}...`;
+
+        const formData = new FormData();
+        formData.append("text", text);
+
+        try {
+          const url =
+            type === "docx"
+              ? `${API_URL}/generate_docx`
+              : `${API_URL}/generate_pdf`;
+          const response = await fetch(url, { method: "POST", body: formData });
+          if (response.ok) {
+            lastGeneratedBlob = await response.blob();
+            lastFileType = type;
+
+            downloadBtn.textContent = `Download ${type.toUpperCase()}`;
+            downloadBtn.style.display = "block";
+
+            fileStatus.textContent = `${type.toUpperCase()} generated. Click the button below to download.`;
+          } else {
+            fileStatus.textContent = `Failed to generate ${type.toUpperCase()}.`;
+          }
+        } catch {
+          fileStatus.textContent = "Error connecting to server.";
+        } finally {
+          btn.disabled = false;
+          spinner.style.display = "none";
+          btn.innerText = type === "docx" ? "Generate DOCX" : "Generate PDF";
+        }
+      }
+
+      // --- Download last generated file ---
+      downloadBtn.addEventListener("click", () => {
+        if (!lastGeneratedBlob) return;
+        const url = window.URL.createObjectURL(lastGeneratedBlob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `extracted_text.${lastFileType}`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        fileStatus.textContent = `Downloaded ${lastFileType.toUpperCase()}!`;
+      });
+
+      // --- Button events ---
+      generateDocxBtn.addEventListener("click", () => generateFile("docx"));
+      generatePdfBtn.addEventListener("click", () => generateFile("pdf"));
+    </script>
+  </body>
+</html>
