@@ -3,10 +3,9 @@ from firebase_admin import credentials, db
 import time
 import os
 
-
 # --- Use environment variables ---
-cred_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
-db_url = os.environ.get("FIREBASE_DB_URL")
+cred_path = os.getenv("FIREBASE_CREDENTIALS", "app/firebase_key.json")
+db_url = os.getenv("FIREBASE_DB_URL", "https://lecture-to-document-c4f7e-default-rtdb.asia-southeast1.firebasedatabase.app/")
 
 # Initialize Firebase app
 cred = credentials.Certificate(cred_path)
