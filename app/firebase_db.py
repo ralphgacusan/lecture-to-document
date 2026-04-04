@@ -1,11 +1,24 @@
 import firebase_admin
 from firebase_admin import credentials, db
 import time
+from dotenv import load_dotenv
+import os
 
+load_dotenv()  # Loads .env variables
 
-cred = credentials.Certificate("app/firebase_key.json")
+cred_path = os.environ["FIREBASE_CREDENTIALS"]
+db_url = os.environ["FIREBASE_DB_URL"]
+
+print("Cred path:", cred_path)
+print("DB URL:", db_url)
+
+print("Cred path:", cred_path)
+print("DB URL:", db_url)
+
+# Initialize Firebase app
+cred = credentials.Certificate(cred_path)
 firebase_admin.initialize_app(cred, {
-    "databaseURL": "https://lecture-to-document-c4f7e-default-rtdb.asia-southeast1.firebasedatabase.app/"
+    "databaseURL": db_url
 })
 
 
