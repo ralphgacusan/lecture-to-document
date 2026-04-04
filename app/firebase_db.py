@@ -1,18 +1,26 @@
+
 import firebase_admin
 from firebase_admin import credentials, db
 import time
+from dotenv import load_dotenv
 import os
 
-# --- Use environment variables ---
-cred_path = os.getenv("FIREBASE_CREDENTIALS", "app/firebase_key.json")
-db_url = os.getenv("FIREBASE_DB_URL", "https://lecture-to-document-c4f7e-default-rtdb.asia-southeast1.firebasedatabase.app/")
+load_dotenv()  # Loads .env variables
+
+cred_path = os.environ["FIREBASE_CREDENTIALS"]
+db_url = os.environ["FIREBASE_DB_URL"]
+
+print("Cred path:", cred_path)
+print("DB URL:", db_url)
+
+print("Cred path:", cred_path)
+print("DB URL:", db_url)
 
 # Initialize Firebase app
 cred = credentials.Certificate(cred_path)
 firebase_admin.initialize_app(cred, {
     "databaseURL": db_url
 })
-
 
 def get_device_ref(device_id: str):
     return db.reference(f"devices/{device_id}")
