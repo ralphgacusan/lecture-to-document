@@ -7,6 +7,7 @@ services:
     volumes:
       - ./uploads:/app/uploads
       - ./output_docs:/app/output_docs
+      - ./app/firebase_key.json:/app/app/firebase_key.json:ro # Firebase key
     env_file:
       - .env
     restart: always

@@ -16,7 +16,13 @@ import time
 import cv2
 import numpy as np
 from app.vision_ocr import extract_text_from_image_bytes
-
+from app.firebase_db import (
+    get_device,
+    create_device_if_not_exists,
+    update_status,
+    update_heartbeat,
+    check_connection
+)
 
 # local
 # Configure Tesseract OCR path (change this if running on Raspberry Pi)
@@ -35,41 +41,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Devices JSON database ---
-DEVICES_JSON = "app/devices.json"
-
-def init_devices_db():
-    os.makedirs("app", exist_ok=True)
-    if not os.path.exists(DEVICES_JSON):
-        # Initialize with some default devices
-        data = {
-            "devices": {
-                "rspi1001": {"status": "pause"},
-                "rspi1002": {"status": "idle"},
-                "rspi1003": {"status": "idle"}
-            }
-        }
-        with open(DEVICES_JSON, "w") as f:
-            json.dump(data, f, indent=2)
-
-def load_devices_db():
-    with open(DEVICES_JSON, "r") as f:
-        return json.load(f)
-
-def save_devices_db(data):
-    with open(DEVICES_JSON, "w") as f:
-        json.dump(data, f, indent=2)
-
-# Initialize devices database
-init_devices_db()
-
 # # Load allowed devices dynamically from devices.json
 # ALLOWED_DEVICES = list(load_devices_db().get("devices", {}).keys())
 
 def validate_device(device_id: str):
-    devices = load_devices_db()
-    if device_id not in devices.get("devices", {}):
-        raise HTTPException(status_code=404, detail=f"Device '{device_id}' not found")
+    create_device_if_not_exists(device_id)
+
 
 # --- Serve device-specific static files ---
 @app.get("/{device_id}/test/{file_path:path}")
@@ -246,34 +223,30 @@ async def set_status(device_id: str, status: str = Form(...)):
     if status not in ["idle", "start", "pause", "finish", "delete"]:
         return JSONResponse({"error": "Invalid status"}, status_code=400)
 
-    devices = load_devices_db()
-    devices["devices"][device_id]["status"] = status
-    save_devices_db(devices)
+    update_status(device_id, status)
+
+
     return JSONResponse({"device_id": device_id, "status": status})
 
 @app.get("/{device_id}/get_status")
 async def get_status(device_id: str):
     validate_device(device_id)
-    devices = load_devices_db()
-    device = devices["devices"].get(device_id, {"status": "idle", "connected": False})
-    
-    # Mark disconnected if no heartbeat for >5 sec
-    if device.get("last_seen") and (time.time() - device["last_seen"]) > 5:
-        device["connected"] = False
-    
-    return device
 
+    device = get_device(device_id)
+
+    if not device:
+        return {"status": "idle", "connected": False}
+
+    device["connected"] = check_connection(device)
+
+    return device
 
 @app.post("/{device_id}/heartbeat")
 async def heartbeat(device_id: str):
     """Raspberry Pi sends a heartbeat to mark itself as connected"""
     validate_device(device_id)
-    devices = load_devices_db()
-    devices["devices"][device_id]["connected"] = True
-    devices["devices"][device_id]["last_seen"] = int(time.time())
-    save_devices_db(devices)
-    return {"device_id": device_id, "connected": True, "last_seen": devices["devices"][device_id]["last_seen"]}
-
+    update_heartbeat(device_id)
+    return {"device_id": device_id, "connected": True}
 
 
 # -----------------------------
