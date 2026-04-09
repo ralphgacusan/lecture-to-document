@@ -177,7 +177,6 @@ async def generate_docx(device_id: str, text: str = Form(...)):
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         headers={"Content-Disposition": "attachment; filename=extracted_text.docx"}
     )
-
 # -----------------------------
 # Generate PDF from edited text (robust version)
 # -----------------------------
@@ -203,10 +202,10 @@ async def generate_pdf(device_id: str, request: Request, text: str = Form(None))
         pdf.set_auto_page_break(auto=True, margin=15)
         pdf.add_page()
 
-        # Use relative path to font inside repo
-        font_path = os.path.join("app", "fonts", "DejaVuSans.ttf")
+        # --- Use absolute path to font relative to this Python file ---
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        font_path = os.path.join(BASE_DIR, "fonts", "DejaVuSans.ttf")
 
-        # Add DejaVu font if it exists, otherwise fallback
         if os.path.exists(font_path):
             pdf.add_font("DejaVu", "", font_path, uni=True)
             pdf.set_font("DejaVu", size=12)
@@ -231,7 +230,7 @@ async def generate_pdf(device_id: str, request: Request, text: str = Form(None))
     except Exception as e:
         print("PDF GENERATION ERROR:", e)
         return JSONResponse({"error": str(e)}, status_code=500)
-
+    
 
 
 # -----------------------------
