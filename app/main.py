@@ -183,36 +183,55 @@ async def generate_docx(device_id: str, text: str = Form(...)):
 # -----------------------------
 @app.post("/{device_id}/generate_pdf")
 async def generate_pdf(device_id: str, text: str = Form(...)):
-    validate_device(device_id)
-    text = text.strip()
-    if not text:
-        return {"error": "No text provided."}
+    try:
+        # Validate device
+        validate_device(device_id)
 
-    pdf = FPDF()
-    pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.add_page()
+        # Clean and check text
+        if text is None or text.strip() == "":
+            return JSONResponse({"error": "No text provided."}, status_code=400)
+        text = text.strip()
 
-    font_path = os.path.join("app", "fonts", "DejaVuSans.ttf")
-    if not os.path.exists(font_path):
-        return JSONResponse({"error": f"Font file not found at {font_path}"}, status_code=500)
+        # Create PDF
+        pdf = FPDF()
+        pdf.set_auto_page_break(auto=True, margin=15)
+        pdf.add_page()
 
-    pdf.add_font("DejaVu", "", font_path, uni=True)
-    pdf.set_font("DejaVu", size=12)
+        # Absolute font path 
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        font_path = os.path.join(BASE_DIR, "fonts", "DejaVuSans.ttf")
 
-    for line in text.splitlines():
-        clean_line = line.strip()
-        if clean_line:
-            pdf.multi_cell(0, 10, clean_line)
+        if os.path.exists(font_path):
+            pdf.add_font("DejaVu", "", font_path, uni=True)
+            pdf.set_font("DejaVu", size=12)
+        else:
+            # Fallback: must be a proper TTF font, system fonts may fail
+            return JSONResponse(
+                {"error": f"Font file not found at {font_path}. Please include it in your deployment."},
+                status_code=500,
+            )
 
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
-    buffer = BytesIO(pdf_bytes)
-    buffer.seek(0)
+        # Add text line by line
+        for line in text.splitlines():
+            clean_line = line.strip()
+            if clean_line:
+                pdf.multi_cell(0, 10, clean_line)
 
-    return StreamingResponse(
-        buffer,
-        media_type="application/pdf",
-        headers={"Content-Disposition": "attachment; filename=extracted_text.pdf"}
-    )
+        # Output PDF as bytes
+        pdf_bytes = pdf.output(dest='S').encode('latin1')  # use latin1 for FPDF
+        buffer = BytesIO(pdf_bytes)
+        buffer.seek(0)
+
+        # Return PDF as streaming response
+        return StreamingResponse(
+            buffer,
+            media_type="application/pdf",
+            headers={"Content-Disposition": "attachment; filename=extracted_text.pdf"}
+        )
+
+    except Exception as e:
+        print("PDF GENERATION ERROR:", str(e))
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 # -----------------------------
 # Capture status endpoints (devices.json)
