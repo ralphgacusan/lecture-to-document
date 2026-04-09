@@ -23,6 +23,7 @@ from app.firebase_db import (
     update_heartbeat,
     check_connection
 )
+from pathlib import Path
 
 # local
 # Configure Tesseract OCR path (change this if running on Raspberry Pi)
@@ -177,6 +178,7 @@ async def generate_docx(device_id: str, text: str = Form(...)):
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         headers={"Content-Disposition": "attachment; filename=extracted_text.docx"}
     )
+    
 # -----------------------------
 # Generate PDF from edited text (robust version)
 # -----------------------------
@@ -203,11 +205,11 @@ async def generate_pdf(device_id: str, request: Request, text: str = Form(None))
         pdf.add_page()
 
         # --- Use absolute path to font relative to this Python file ---
-        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        font_path = os.path.join(BASE_DIR, "fonts", "DejaVuSans.ttf")
+        BASE_DIR = Path(__file__).resolve().parent
+        font_path = BASE_DIR / "fonts" / "DejaVuSans.ttf"
 
-        if os.path.exists(font_path):
-            pdf.add_font("DejaVu", "", font_path, uni=True)
+        if font_path.exists():
+            pdf.add_font("DejaVu", "", str(font_path), uni=True)
             pdf.set_font("DejaVu", size=12)
         else:
             print(f"⚠️ Font not found at {font_path}, using default font")
@@ -231,7 +233,7 @@ async def generate_pdf(device_id: str, request: Request, text: str = Form(None))
         print("PDF GENERATION ERROR:", e)
         return JSONResponse({"error": str(e)}, status_code=500)
     
-
+    
 
 # -----------------------------
 # Capture status endpoints (devices.json)
