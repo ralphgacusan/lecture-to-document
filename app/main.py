@@ -23,7 +23,6 @@ from app.firebase_db import (
     update_heartbeat,
     check_connection
 )
-from pathlib import Path
 
 # local
 # Configure Tesseract OCR path (change this if running on Raspberry Pi)
@@ -204,12 +203,11 @@ async def generate_pdf(device_id: str, request: Request, text: str = Form(None))
         pdf.set_auto_page_break(auto=True, margin=15)
         pdf.add_page()
 
-        # --- Use absolute path to font relative to this Python file ---
-        BASE_DIR = Path(__file__).resolve().parent
-        font_path = BASE_DIR / "fonts" / "DejaVuSans.ttf"
+        # --- Use font path from environment variable ---
+        font_path = os.getenv("DEJAVU_FONT", "DejaVuSans.ttf")
 
-        if font_path.exists():
-            pdf.add_font("DejaVu", "", str(font_path), uni=True)
+        if os.path.exists(font_path):
+            pdf.add_font("DejaVu", "", font_path, uni=True)
             pdf.set_font("DejaVu", size=12)
         else:
             print(f"⚠️ Font not found at {font_path}, using default font")
