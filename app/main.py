@@ -178,9 +178,8 @@ async def generate_docx(device_id: str, text: str = Form(...)):
         headers={"Content-Disposition": "attachment; filename=extracted_text.docx"}
     )
 
-
 # -----------------------------
-# Generate PDF from edited text
+# Generate PDF from edited text (robust version)
 # -----------------------------
 @app.post("/{device_id}/generate_pdf")
 async def generate_pdf(device_id: str, request: Request, text: str = Form(None)):
@@ -196,7 +195,7 @@ async def generate_pdf(device_id: str, request: Request, text: str = Form(None))
         if not text:
             return JSONResponse({"error": "No text provided."}, status_code=400)
 
-        # --- Validate device (your existing function) ---
+        # --- Validate device ---
         validate_device(device_id)
 
         # --- PDF setup ---
@@ -204,14 +203,16 @@ async def generate_pdf(device_id: str, request: Request, text: str = Form(None))
         pdf.set_auto_page_break(auto=True, margin=15)
         pdf.add_page()
 
-        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        font_path = os.path.join(BASE_DIR, "fonts", "DejaVuSans.ttf")
+        # Use relative path to font inside repo
+        font_path = os.path.join("app", "fonts", "DejaVuSans.ttf")
 
+        # Add DejaVu font if it exists, otherwise fallback
         if os.path.exists(font_path):
             pdf.add_font("DejaVu", "", font_path, uni=True)
             pdf.set_font("DejaVu", size=12)
         else:
-            return JSONResponse({"error": f"Font not found at {font_path}"}, status_code=500)
+            print(f"⚠️ Font not found at {font_path}, using default font")
+            pdf.set_font("Arial", size=12)
 
         # --- Add text line by line ---
         for line in text.splitlines():
@@ -230,7 +231,8 @@ async def generate_pdf(device_id: str, request: Request, text: str = Form(None))
     except Exception as e:
         print("PDF GENERATION ERROR:", e)
         return JSONResponse({"error": str(e)}, status_code=500)
-    
+
+
 
 # -----------------------------
 # Capture status endpoints (devices.json)
