@@ -374,7 +374,7 @@ The system includes:
 
 **Ralph Jayrell Gacusan**
 
-Backend Developer • Python Developer • Data & AI Enthusiast
+Software Engineer
 
 GitHub: https://github.com/ralphgacusan
 
