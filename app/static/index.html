@@ -2,751 +2,568 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Image to DOCX/PDF</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lecture-to-Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
     <style>
+      :root {
+        --paper: #f2f0eb;
+        --surface: #ffffff;
+        --ink: #1c1b18;
+        --ink-soft: #63615a;
+        --line: #e3e0d8;
+        --accent: #2f4b3c;
+        --error: #a13d2d;
+      }
+
       * {
         box-sizing: border-box;
       }
+
+      html,
       body {
-        font-family: "Segoe UI", Arial, sans-serif;
-        background: #f5f7fb;
         margin: 0;
         padding: 0;
-        display: flex;
-        justify-content: center;
-      }
-      .container {
-        background: #fff;
-        margin-top: 40px;
-        padding: 30px;
-        width: 100%;
-        max-width: 700px;
-        border-radius: 12px;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-        display: flex;
-        flex-direction: column;
-        transition: all 0.2s ease;
-      }
-      h2 {
-        margin-bottom: 10px;
-        color: #333;
-      }
-      .subtitle {
-        color: #777;
-        font-size: 14px;
-        margin-bottom: 10px;
-      }
-      .status-panel {
-        margin-bottom: 20px;
-        padding: 10px 15px;
-        border-radius: 8px;
-        background: #eef1f8;
-        border: 1px solid #d0d5e5;
-        font-size: 14px;
-        color: #333;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-      }
-      .status-panel div {
-        display: flex;
-        gap: 4px;
-        min-width: 130px;
-        white-space: nowrap;
-      }
-      .status-panel span {
-        display: inline-block;
-        min-width: 50px;
-      }
-      #preview {
-        margin-top: 20px;
-        display: none;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        gap: 10px;
-        padding: 10px;
-        min-height: 120px;
-        border: 1px dashed #ddd;
-        border-radius: 8px;
-        background: #fafafa;
-      }
-      #preview img {
-        flex: 0 0 auto;
-        width: 100px;
-        height: 100px;
-        object-fit: cover;
-        border-radius: 8px;
-        border: 1px solid #eee;
-        transition:
-          transform 0.2s ease,
-          box-shadow 0.2s ease;
-        cursor: pointer;
-      }
-      #preview img:hover {
-        transform: scale(1.05);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      }
-      button {
-        margin-top: 15px;
-        padding: 12px;
-        border: none;
-        border-radius: 8px;
-        background: #4f46e5;
-        color: white;
-        font-weight: 600;
-        cursor: pointer;
-        transition:
-          0.15s ease,
-          transform 0.1s ease,
-          background 0.2s ease;
-        position: relative;
+        height: 100vh;
         overflow: hidden;
       }
-      button:hover {
-        background: #4338ca;
+
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family:
+          "Inter",
+          -apple-system,
+          "Segoe UI",
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
       }
-      button:active {
-        transform: scale(0.97);
-        background: #3b32a1;
+
+      .page {
+        max-width: 1100px;
+        height: 100vh;
+        margin: 0 auto;
+        padding: 32px 32px 24px;
+        display: flex;
+        flex-direction: column;
       }
-      button:disabled {
-        background: #7c6ff0;
-        cursor: not-allowed;
-        opacity: 0.7;
+
+      /* ---------- Masthead ---------- */
+
+      .masthead {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 20px;
+        margin-bottom: 28px;
+        flex: none;
       }
-      .button-spinner {
-        border: 3px solid rgba(255, 255, 255, 0.3);
-        border-top: 3px solid white;
-        border-radius: 50%;
-        width: 18px;
-        height: 18px;
-        animation: spin 1s linear infinite;
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        display: none;
+
+      .mark {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
       }
-      @keyframes spin {
-        0% {
-          transform: translateY(-50%) rotate(0deg);
-        }
-        100% {
-          transform: translateY(-50%) rotate(360deg);
-        }
+
+      .mark svg {
+        width: 22px;
+        height: 22px;
+        flex: none;
+        transform: translateY(2px);
       }
-      textarea {
-        margin-top: 15px;
-        width: 100%;
-        border-radius: 8px;
-        border: 1px solid #ddd;
-        padding: 10px;
+
+      .mark span {
+        font-family: "Source Serif 4", serif;
+        font-size: 21px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+
+      .masthead p {
+        margin: 0;
         font-size: 13px;
-        resize: none;
-        background: #fafafa;
-        height: 200px;
-        overflow-y: auto;
+        color: var(--ink-soft);
+      }
+
+      /* ---------- Hero ---------- */
+
+      .hero {
+        flex: none;
+      }
+
+      .hero h1 {
+        font-family: "Source Serif 4", serif;
+        font-weight: 400;
+        font-size: 38px;
+        line-height: 1.25;
+        letter-spacing: -0.01em;
+        margin: 0 0 12px;
+        max-width: 24ch;
+      }
+
+      .hero p {
+        font-size: 15.5px;
+        line-height: 1.6;
+        color: var(--ink-soft);
+        max-width: 60ch;
+        margin: 0 0 28px;
+      }
+
+      /* ---------- Path cards ---------- */
+
+      .paths {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1px;
+        background: var(--line);
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        overflow: hidden;
+        flex: 1;
+        min-height: 0;
+      }
+
+      .path {
+        background: var(--surface);
+        padding: 28px 28px;
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+        color: inherit;
+        transition: background 0.15s ease;
+        /* reset so the <button> card matches the <a> card */
+        border: none;
+        border-radius: 0;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+        width: 100%;
+        min-height: 0;
+      }
+
+      .path:hover {
+        background: #fbfaf7;
+      }
+
+      .path:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: -2px;
+      }
+
+      .path-number {
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: 11px;
+        color: var(--ink-soft);
+        letter-spacing: 0.04em;
+        margin-bottom: 16px;
+      }
+
+      .path svg {
+        width: 26px;
+        height: 26px;
+        margin-bottom: 16px;
+        color: var(--accent);
+      }
+
+      .path h2 {
+        font-size: 17px;
+        font-weight: 600;
+        margin: 0 0 8px;
+        letter-spacing: -0.01em;
+      }
+
+      .path p {
+        font-size: 13.5px;
+        line-height: 1.55;
+        color: var(--ink-soft);
+        margin: 0 0 16px;
+        flex-grow: 1;
+      }
+
+      .path-cta {
+        font-size: 13.5px;
+        font-weight: 500;
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        gap: 6px;
         transition:
-          border-color 0.2s ease,
-          box-shadow 0.2s ease;
+          color 0.15s ease,
+          gap 0.15s ease;
       }
-      textarea:focus {
-        border-color: #4f46e5;
-        box-shadow: 0 0 5px rgba(79, 70, 229, 0.3);
+
+      .path:hover .path-cta {
+        color: var(--accent);
+        gap: 9px;
       }
-      .status {
-        margin-top: 10px;
-        color: #555;
+
+      /* ---------- Device ID dialog ---------- */
+
+      dialog {
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        padding: 0;
+        width: calc(100% - 40px);
+        max-width: 400px;
+        background: var(--surface);
+        color: var(--ink);
+        box-shadow: 0 20px 50px rgba(28, 27, 24, 0.18);
+      }
+
+      dialog::backdrop {
+        background: rgba(28, 27, 24, 0.38);
+      }
+
+      .dialog-body {
+        padding: 28px;
+      }
+
+      .dialog-body h3 {
+        font-family: "Source Serif 4", serif;
+        font-weight: 600;
+        font-size: 20px;
+        letter-spacing: -0.01em;
+        margin: 0 0 6px;
+      }
+
+      .dialog-body > p {
+        font-size: 13.5px;
+        line-height: 1.5;
+        color: var(--ink-soft);
+        margin: 0 0 20px;
+      }
+
+      .dialog-body label {
+        display: block;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--ink-soft);
+        margin-bottom: 8px;
+      }
+
+      .dialog-body input {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        padding: 11px 12px;
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
         font-size: 14px;
-        text-align: center;
-        min-height: 20px;
+        color: var(--ink);
+        background: var(--surface);
       }
-      .button-row {
+
+      .dialog-body input:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+
+      .dialog-body input.invalid {
+        border-color: var(--error);
+      }
+
+      .field-error {
+        min-height: 18px;
+        margin: 8px 0 0;
+        font-size: 12.5px;
+        color: var(--error);
+      }
+
+      .dialog-actions {
         display: flex;
         gap: 10px;
-        margin-top: 15px;
-        flex-wrap: wrap;
+        margin-top: 12px;
       }
-      .button-row button {
+
+      .dialog-actions button {
         flex: 1;
+        font-family: inherit;
+        font-size: 13.5px;
+        font-weight: 500;
+        border-radius: 3px;
+        padding: 11px 16px;
+        cursor: pointer;
+        transition:
+          background 0.15s ease,
+          border-color 0.15s ease;
       }
-      #startCaptureBtn {
-        width: 100%;
-        height: 43px;
+
+      .btn-primary {
+        border: none;
+        background: var(--accent);
+        color: #fff;
       }
-      #preview img.selected {
-        opacity: 0.5;
-        border: 2px solid #e53e3e;
+      .btn-primary:hover {
+        background: #253d31;
       }
-      @media (max-width: 500px) {
-        .status-panel {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 5px;
+
+      .btn-ghost {
+        border: 1px solid var(--line);
+        background: transparent;
+        color: var(--ink);
+      }
+      .btn-ghost:hover {
+        border-color: #c7c3b8;
+        background: #fbfaf7;
+      }
+
+      /* ---------- Footer ---------- */
+
+      .foot {
+        margin: 16px 0 0;
+        font-size: 12.5px;
+        color: var(--ink-soft);
+        text-align: center;
+        flex: none;
+      }
+
+      @media (max-width: 560px) {
+        .page {
+          padding: 20px 16px 16px;
+        }
+        .masthead {
+          padding-bottom: 14px;
+          margin-bottom: 18px;
+        }
+        .hero h1 {
+          font-size: 26px;
+          margin-bottom: 8px;
+        }
+        .hero p {
+          font-size: 14px;
+          line-height: 1.5;
+          margin-bottom: 16px;
+        }
+        .paths {
+          grid-template-columns: 1fr;
+        }
+        .path {
+          padding: 16px 20px;
+        }
+        .path-number {
+          margin-bottom: 8px;
+        }
+        .path svg {
+          width: 22px;
+          height: 22px;
+          margin-bottom: 8px;
+        }
+        .path p {
+          margin-bottom: 10px;
+          font-size: 13px;
         }
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <h2>📄 Image to DOCX/PDF</h2>
-      <div class="subtitle">
-        Capture images from Raspberry Pi, then extract text
-      </div>
-
-      <div class="status-panel" id="captureStatusPanel">
-        <div>
-          <strong>Capture Status:</strong> <span id="captureStatus">Idle</span>
+    <div class="page">
+      <header class="masthead">
+        <div class="mark">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              x="4"
+              y="2.5"
+              width="16"
+              height="19"
+              rx="1"
+              stroke="#1c1b18"
+              stroke-width="1.4"
+            />
+            <path
+              d="M8 8H16"
+              stroke="#2f4b3c"
+              stroke-width="1.4"
+              stroke-linecap="round"
+            />
+            <path
+              d="M8 12H16"
+              stroke="#1c1b18"
+              stroke-width="1.4"
+              stroke-linecap="round"
+            />
+            <path
+              d="M8 16H13"
+              stroke="#1c1b18"
+              stroke-width="1.4"
+              stroke-linecap="round"
+            />
+          </svg>
+          <span>Lecture-to-Document</span>
         </div>
-        <div>
-          <strong>Connected:</strong> <span id="connectedStatus">No</span>
-        </div>
-        <div><strong>Last Seen:</strong> <span id="lastSeen">-</span></div>
+        <p>Photos → text → document</p>
+      </header>
+
+      <section class="hero">
+        <h1>Turn lecture photos into a document you can edit.</h1>
+        <p>
+          Pick how your images get here — upload them yourself, or pull them in
+          from a connected capture device — then review the extracted text and
+          export it as DOCX or PDF.
+        </p>
+      </section>
+
+      <div class="paths">
+        <a class="path" href="/test">
+          <div class="path-number">01</div>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M12 16V4M12 4L7 9M12 4L17 9"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M4 16V18C4 19.1046 4.89543 20 6 20H18C19.1046 20 20 19.1046 20 18V16"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+          </svg>
+          <h2>Upload photos</h2>
+          <p>
+            Select images straight from this device and extract text from them
+            right away.
+          </p>
+          <span class="path-cta">Start uploading →</span>
+        </a>
+
+        <button type="button" class="path" id="openCapture">
+          <div class="path-number">02</div>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              x="3"
+              y="7"
+              width="18"
+              height="13"
+              rx="2"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <path
+              d="M8 7L9.5 4H14.5L16 7"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <circle
+              cx="12"
+              cy="13.5"
+              r="3.2"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+          </svg>
+          <h2>Capture device</h2>
+          <p>
+            Start a session on your connected capture device and review what it
+            picks up.
+          </p>
+          <span class="path-cta">Open capture →</span>
+        </button>
       </div>
 
-      <button id="startCaptureBtn" style="position: relative" disabled>
-        <div class="button-spinner" id="startSpinner"></div>
-        Start Capturing
-      </button>
-
-      <div class="button-row" id="captureButtons" style="display: none">
-        <button
-          id="pauseCaptureBtn"
-          style="background: #4f46e5; position: relative"
-        >
-          <div class="button-spinner" id="pauseSpinner"></div>
-          Pause Capture
-        </button>
-        <button
-          id="finishCaptureBtn"
-          style="background: #d43f3a; position: relative"
-        >
-          <div class="button-spinner" id="finishSpinner"></div>
-          Finish Capture
-        </button>
-      </div>
-
-      <div class="button-row" id="postCaptureButtons" style="display: none">
-        <button
-          id="deleteCapturesBtn"
-          style="background: #7c6ff0; position: relative"
-        >
-          <div class="button-spinner" id="deleteSpinner"></div>
-          Delete Captures
-        </button>
-        <button
-          id="extractTextBtn"
-          style="background: #2b579a; position: relative"
-        >
-          <div class="button-spinner" id="extractSpinner"></div>
-          Extract Text
-        </button>
-      </div>
-
-      <div id="preview"></div>
-
-      <h3 style="margin-top: 20px">Preview (Editable)</h3>
-      <textarea
-        id="docPreview"
-        placeholder="Extracted text will appear here..."
-      ></textarea>
-
-      <div class="button-row" id="generateButtons" style="display: none">
-        <button
-          id="generateDocxBtn"
-          style="flex: 1; position: relative; background: #2b579a"
-        >
-          <div class="button-spinner" id="docxSpinner"></div>
-          Generate DOCX
-        </button>
-        <button
-          id="generatePdfBtn"
-          style="flex: 1; position: relative; background: #d43f3a"
-        >
-          <div class="button-spinner" id="pdfSpinner"></div>
-          Generate PDF
-        </button>
-      </div>
-
-      <button
-        id="downloadBtn"
-        style="display: none; margin-top: 15px; background: #4caf50"
-      ></button>
-      <div class="status" id="fileStatus">Waiting for capture...</div>
+      <p class="foot">
+        Files are processed for this session only and aren't stored.
+      </p>
     </div>
 
+    <dialog id="deviceDialog" aria-labelledby="deviceTitle">
+      <div class="dialog-body">
+        <h3 id="deviceTitle">Enter your device ID</h3>
+        <p>
+          Each capture device has its own ID. Enter yours to open its capture
+          page.
+        </p>
+
+        <label for="deviceInput">Device ID</label>
+        <input
+          id="deviceInput"
+          type="text"
+          placeholder="e.g. rspi1001"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+        />
+        <p class="field-error" id="deviceError" role="alert"></p>
+
+        <div class="dialog-actions">
+          <button type="button" class="btn-ghost" id="cancelDevice">
+            Cancel
+          </button>
+          <button type="button" class="btn-primary" id="goDevice">
+            Go to capture
+          </button>
+        </div>
+      </div>
+    </dialog>
+
     <script>
-      const pathParts = window.location.pathname.split("/").filter((p) => p);
-      const DEVICE_ID = pathParts[0] || "default_device";
-      const API_URL = `${window.location.origin}/${DEVICE_ID}`;
+      const dialog = document.getElementById("deviceDialog");
+      const input = document.getElementById("deviceInput");
+      const errorEl = document.getElementById("deviceError");
+      const STORAGE_KEY = "lastDeviceId";
 
-      const startBtn = document.getElementById("startCaptureBtn");
-      const captureButtons = document.getElementById("captureButtons");
-      const postCaptureButtons = document.getElementById("postCaptureButtons");
-      const pauseBtn = document.getElementById("pauseCaptureBtn");
-      const finishBtn = document.getElementById("finishCaptureBtn");
-      const deleteBtn = document.getElementById("deleteCapturesBtn");
-      const extractBtn = document.getElementById("extractTextBtn");
-      const previewDiv = document.getElementById("preview");
-      const docPreview = document.getElementById("docPreview");
-      const fileStatus = document.getElementById("fileStatus");
-      const generateButtons = document.getElementById("generateButtons");
-      const generateDocxBtn = document.getElementById("generateDocxBtn");
-      const generatePdfBtn = document.getElementById("generatePdfBtn");
-      const downloadBtn = document.getElementById("downloadBtn");
+      function setError(msg) {
+        errorEl.textContent = msg;
+        input.classList.toggle("invalid", Boolean(msg));
+      }
 
-      const captureStatus = document.getElementById("captureStatus");
-      const connectedStatus = document.getElementById("connectedStatus");
-      const lastSeen = document.getElementById("lastSeen");
-
-      // --- INITIAL STATE ---
-      captureStatus.textContent = "Idle";
-      connectedStatus.textContent = "No";
-      startBtn.disabled = true; // Start button is disabled until connected
-      startBtn.style.display = "block";
-      captureButtons.style.display = "none";
-      postCaptureButtons.style.display = "none";
-      generateButtons.style.display = "none";
-      downloadBtn.style.display = "none";
-      fileStatus.textContent = "Waiting for device connection...";
-      previewDiv.style.display = "none";
-
-      let isPaused = false;
-      let lastGeneratedBlob = null;
-      let lastFileType = "";
-
-      // -------------------------------
-      // 1️⃣ Device heartbeat & status (every 5s)
-      // -------------------------------
-      async function updateDeviceStatus() {
+      document.getElementById("openCapture").addEventListener("click", () => {
+        setError("");
         try {
-          const res = await fetch(`${API_URL}/get_status`);
-          const device = res.ok ? await res.json() : null;
-
-          const isConnected = device?.connected ?? false;
-          connectedStatus.textContent = isConnected ? "Yes" : "No";
-
-          if (!isConnected) {
-            // FORCE UI to disabled start capture
-            forceIdleUI();
-            captureStatus.textContent = "Idle";
-            startBtn.disabled = true;
-            startBtn.style.display = "block";
-
-            // Hide other buttons
-            captureButtons.style.display = "none";
-            postCaptureButtons.style.display = "none";
-            generateButtons.style.display = "none";
-            downloadBtn.style.display = "none";
-
-            fileStatus.textContent =
-              "Device disconnected. Waiting for connection...";
-            previewDiv.style.display = "none";
-
-            // Automatically delete all uploaded images
-            if (captureStatus.textContent !== "Start") {
-              await updateStatus("idle");
-            }
-            await deleteAllUploads();
-          } else {
-            // Device connected → normal behavior
-            captureStatus.textContent =
-              device.status.charAt(0).toUpperCase() + device.status.slice(1);
-            startBtn.disabled = !isConnected;
-
-            // Update last seen
-            lastSeen.textContent = device.last_seen
-              ? new Date(device.last_seen * 1000).toLocaleTimeString()
-              : "-";
-          }
-        } catch (err) {
-          console.error(err);
-          // Treat as disconnected
-          forceIdleUI();
-          await deleteAllUploads(true);
-
-          connectedStatus.textContent = "No";
-          captureStatus.textContent = "Idle";
-          startBtn.disabled = true;
-          startBtn.style.display = "block";
-          captureButtons.style.display = "none";
-          postCaptureButtons.style.display = "none";
-          generateButtons.style.display = "none";
-          downloadBtn.style.display = "none";
-          fileStatus.textContent =
-            "Device disconnected. Waiting for connection...";
-          previewDiv.style.display = "none";
-
-          // Auto-delete images in disconnected state
-        }
-      }
-
-      function forceIdleUI() {
-        // Capture & connected status
-        captureStatus.textContent = "Idle";
-        connectedStatus.textContent = "No";
-
-        // Buttons
-        startBtn.disabled = true;
-        startBtn.style.display = "block";
-        captureButtons.style.display = "none";
-        postCaptureButtons.style.display = "none";
-        generateButtons.style.display = "none";
-        downloadBtn.style.display = "none";
-
-        // File status
-        fileStatus.textContent =
-          "Device disconnected. Waiting for connection...";
-
-        // Hide preview
-        previewDiv.style.display = "none";
-      }
-
-      // Poll status every 5 seconds
-      setInterval(updateDeviceStatus, 5000);
-      updateDeviceStatus();
-
-      async function updateStatus(status) {
-        const formData = new FormData();
-        formData.append("status", status);
-        await fetch(`${API_URL}/set_status`, {
-          method: "POST",
-          body: formData,
-        });
-        captureStatus.textContent =
-          status.charAt(0).toUpperCase() + status.slice(1);
-
-        updateUIByStatus(status);
-      }
-
-      // -------------------------------
-      // 2️⃣ Preview uploaded images (every 5s)
-      // -------------------------------
-      async function fetchUploadedImages() {
-        try {
-          const res = await fetch(`${API_URL}/list_uploads`);
-          if (!res.ok) throw new Error("Failed to fetch uploads");
-          const data = await res.json();
-
-          // Remember selected images
-          const selectedFiles = Array.from(
-            previewDiv.querySelectorAll("img.selected"),
-          ).map((img) => img.src.split("/").pop());
-
-          previewDiv.innerHTML = "";
-          if (data.files.length > 0) {
-            if (captureStatus.textContent.toLowerCase() !== "start") {
-              previewDiv.style.display = "flex";
-              postCaptureButtons.style.display = "flex";
-              fileStatus.textContent = "Images ready. You can extract text.";
-            } else {
-              previewDiv.style.display = "none";
-              postCaptureButtons.style.display = "none";
-            }
-
-            data.files.forEach((file) => {
-              const img = document.createElement("img");
-              img.src = `${API_URL}/get_upload/${file}`;
-
-              // Restore selection
-              if (selectedFiles.includes(file)) {
-                img.classList.add("selected");
-              }
-
-              previewDiv.appendChild(img);
-            });
-            makeImagesRemovable();
-          } else {
-            previewDiv.style.display = "none";
-          }
-        } catch {
-          fileStatus.textContent = "Failed to fetch uploaded images.";
-        }
-      }
-      setInterval(fetchUploadedImages, 5000);
-
-      // -------------------------------
-      // 3️⃣ Button actions
-      // -------------------------------
-      startBtn.addEventListener("click", async () => {
-        // Hide post-capture buttons (delete & extract)
-        postCaptureButtons.style.display = "none";
-
-        // Show capture buttons
-        captureButtons.style.display = "flex";
-
-        // Hide "Start Capturing" since we’re actively capturing
-        startBtn.style.display = "none";
-
-        fileStatus.textContent = "Capturing images...";
-        await updateStatus("start");
+          input.value = localStorage.getItem(STORAGE_KEY) || "";
+        } catch {}
+        dialog.showModal();
+        input.focus();
+        input.select();
       });
 
-      pauseBtn.addEventListener("click", async () => {
-        isPaused = !isPaused;
-        pauseBtn.textContent = isPaused ? "Continue Capture" : "Pause Capture";
-        fileStatus.textContent = isPaused
-          ? "Capture paused."
-          : "Resuming capture...";
-        await updateStatus(isPaused ? "pause" : "start");
-      });
-
-      finishBtn.addEventListener("click", async () => {
-        // Hide capture buttons
-        captureButtons.style.display = "none";
-
-        // Show post-capture buttons (delete & extract)
-        postCaptureButtons.style.display = "flex";
-
-        // Show "Start Capturing" again so user can start a new session
-        startBtn.style.display = "block";
-
-        // Clear preview (optional)
-        // previewDiv.innerHTML = ""; // You can keep images visible if desired
-
-        fileStatus.textContent =
-          "Capture finished. You can delete or extract images.";
-        await updateStatus("finish");
-
-        fetchUploadedImages();
-      });
-
-      deleteBtn.addEventListener("click", async () => {
-        let imgs = Array.from(previewDiv.querySelectorAll("img"));
-        let selectedImgs = imgs.filter((img) =>
-          img.classList.contains("selected"),
-        );
-
-        let filesToDelete =
-          selectedImgs.length > 0
-            ? selectedImgs.map((img) => img.src.split("/").pop())
-            : imgs.map((img) => img.src.split("/").pop());
-
-        if (filesToDelete.length === 0) return;
-
-        if (
-          !confirm(
-            `Are you sure you want to delete ${filesToDelete.length} image(s)?`,
-          )
-        )
-          return;
-
-        fileStatus.textContent = "Deleting captures...";
+      function goToDevice() {
+        const id = input.value.trim();
+        if (!id) return setError("Please enter a device ID.");
+        if (!/^[A-Za-z0-9_-]+$/.test(id))
+          return setError("Use only letters, numbers, dashes and underscores.");
 
         try {
-          const res = await fetch(`${API_URL}/delete_uploads`, {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(filesToDelete),
-          });
-
-          if (!res.ok) throw new Error("Failed to delete uploads");
-
-          const data = await res.json();
-
-          // Remove deleted images from preview
-          filesToDelete.forEach((f) => {
-            const img = previewDiv.querySelector(`img[src$="${f}"]`);
-            if (img) img.remove();
-          });
-
-          docPreview.value = "";
-          postCaptureButtons.style.display =
-            previewDiv.children.length > 0 ? "flex" : "none";
-          generateButtons.style.display = "none";
-          downloadBtn.style.display = "none";
-          startBtn.style.display = "block";
-
-          fileStatus.textContent = `Deleted ${data.deleted_files.length} image(s).`;
-        } catch (err) {
-          console.error(err);
-          fileStatus.textContent = "Error deleting captures.";
-        }
-      });
-
-      extractBtn.addEventListener("click", async () => {
-        fileStatus.textContent = "Extracting text...";
-        try {
-          const formData = new FormData();
-          const imgs = Array.from(previewDiv.querySelectorAll("img")).filter(
-            (img) => !img.classList.contains("selected"),
-          ); // skip selected
-          if (imgs.length === 0) {
-            return alert("No images selected for extraction!");
-          }
-          // Convert preview images to blobs
-
-          for (const img of imgs) {
-            const res = await fetch(img.src);
-            const blob = await res.blob();
-            const fileName = img.src.split("/").pop();
-            formData.append(
-              "files",
-              new File([blob], fileName, { type: blob.type }),
-            );
-          }
-
-          // Send actual files to backend
-          const res = await fetch(`${API_URL}/extract_text`, {
-            method: "POST",
-            body: formData,
-          });
-
-          if (!res.ok) throw new Error("Failed to extract text");
-
-          const data = await res.json();
-          docPreview.value = data.preview_text || "";
-          fileStatus.textContent =
-            "Text extracted. You can now edit or generate DOCX/PDF.";
-          generateButtons.style.display = "flex";
-        } catch (err) {
-          console.error(err);
-          fileStatus.textContent = "Error extracting text.";
-        }
-      });
-
-      async function generateFile(type) {
-        const text = docPreview.value.trim();
-        if (!text) return alert("Textarea is empty!");
-        const btn = type === "docx" ? generateDocxBtn : generatePdfBtn;
-        btn.disabled = true;
-        btn.querySelector(".button-spinner").style.display = "block";
-        btn.innerText = ` Generating ${type.toUpperCase()}...`;
-
-        const formData = new FormData();
-        formData.append("text", text);
-        try {
-          const url =
-            type === "docx"
-              ? `${API_URL}/generate_docx`
-              : `${API_URL}/generate_pdf`;
-          const res = await fetch(url, { method: "POST", body: formData });
-          if (res.ok) {
-            lastGeneratedBlob = await res.blob();
-            lastFileType = type;
-            downloadBtn.textContent = `Download ${type.toUpperCase()}`;
-            downloadBtn.style.display = "block";
-            fileStatus.textContent = `${type.toUpperCase()} generated. Click download to save.`;
-          } else
-            fileStatus.textContent = `Failed to generate ${type.toUpperCase()}.`;
-        } catch {
-          fileStatus.textContent = "Error connecting to backend.";
-        } finally {
-          btn.disabled = false;
-          btn.querySelector(".button-spinner").style.display = "none";
-          btn.innerText = type === "docx" ? "Generate DOCX" : "Generate PDF";
-        }
+          localStorage.setItem(STORAGE_KEY, id);
+        } catch {}
+        window.location.href = "/" + encodeURIComponent(id);
       }
 
-      generateDocxBtn.addEventListener("click", () => generateFile("docx"));
-      generatePdfBtn.addEventListener("click", () => generateFile("pdf"));
+      document.getElementById("goDevice").addEventListener("click", goToDevice);
+      document
+        .getElementById("cancelDevice")
+        .addEventListener("click", () => dialog.close());
 
-      downloadBtn.addEventListener("click", () => {
-        if (!lastGeneratedBlob) return;
-        const url = window.URL.createObjectURL(lastGeneratedBlob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `extracted_text.${lastFileType}`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-        fileStatus.textContent = `Downloaded ${lastFileType.toUpperCase()}!`;
+      input.addEventListener("input", () => setError(""));
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") goToDevice();
       });
 
-      // -------------------------------
-      // 4️⃣ Auto-delete images when idle
-      // -------------------------------
-
-      // async function autoDeleteOnIdle(setRoleIdle = false) {
-      //   if (
-      //     captureStatus.textContent === "Idle" &&
-      //     previewDiv.children.length > 0 &&
-      //     captureButtons.style.display === "none"
-      //   ) {
-      //     console.log("Device is idle. Auto-deleting images...");
-      //     fileStatus.textContent = "Deleting captures...";
-
-      //     try {
-      //       const res = await fetch(`${API_URL}/delete_all_uploads`, {
-      //         method: "DELETE",
-      //       });
-
-      //       if (res.ok) {
-      //         const data = await res.json();
-
-      //         // Clear UI
-      //         previewDiv.innerHTML = "";
-      //         docPreview.value = "";
-      //         postCaptureButtons.style.display = "none";
-      //         generateButtons.style.display = "none";
-      //         downloadBtn.style.display = "none";
-      //         startBtn.style.display = "block";
-
-      //         fileStatus.textContent = `Deleted ${data.deleted_files.length} captures.`;
-
-      //         // Update backend status depending on reason
-      //         if (setRoleIdle) {
-      //           await updateStatus("idle"); // idle-triggered deletion
-      //         } else {
-      //           await updateStatus("delete"); // forced deletion (disconnect)
-      //         }
-      //       } else {
-      //         fileStatus.textContent = "Failed to delete captures.";
-      //       }
-      //     } catch (err) {
-      //       console.error(err);
-      //       fileStatus.textContent = "Error deleting captures.";
-      //     }
-      //   }
-      // }
-
-      // // Check idle every 5 seconds
-      // setInterval(autoDeleteOnIdle, 5000);
-
-      function updateUIByStatus(status) {
-        const normalizedStatus = status.toLowerCase();
-
-        if (normalizedStatus === "start") {
-          // During capturing
-          captureButtons.style.display = "flex";
-          postCaptureButtons.style.display = "none"; // hide delete & extract
-          generateButtons.style.display = "none"; // hide generate buttons
-          downloadBtn.style.display = "none";
-          previewDiv.style.display = "none"; // hide preview
-        } else if (normalizedStatus === "pause") {
-          // Paused capture
-          captureButtons.style.display = "flex";
-          postCaptureButtons.style.display = "none";
-          generateButtons.style.display = "none";
-          downloadBtn.style.display = "none";
-          previewDiv.style.display = "none";
-        } else {
-          // Finished, idle, or other
-          captureButtons.style.display = "none";
-          postCaptureButtons.style.display =
-            previewDiv.children.length > 0 ? "flex" : "none";
-          generateButtons.style.display =
-            docPreview.value.trim() !== "" ? "flex" : "none";
-          downloadBtn.style.display = lastGeneratedBlob ? "block" : "none";
-          previewDiv.style.display =
-            previewDiv.children.length > 0 ? "flex" : "none";
-        }
-      }
-
-      function makeImagesRemovable() {
-        const imgs = Array.from(previewDiv.querySelectorAll("img"));
-        imgs.forEach((img) => {
-          // Remove existing click handlers to avoid duplicates
-          img.onclick = null;
-
-          // Click to toggle selection
-          img.addEventListener("click", async () => {
-            img.classList.toggle("selected");
-          });
-        });
-      }
+      // Click on the backdrop closes the dialog
+      dialog.addEventListener("click", (e) => {
+        if (e.target === dialog) dialog.close();
+      });
     </script>
   </body>
 </html>

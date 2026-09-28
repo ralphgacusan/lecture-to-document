@@ -1,0 +1,834 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lecture-to-Document — Turn photos into documents</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #f2f0eb;
+        --surface: #ffffff;
+        --ink: #1c1b18;
+        --ink-soft: #63615a;
+        --line: #e3e0d8;
+        --accent: #2f4b3c;
+        --accent-soft: #e7ede9;
+        --error: #a13d2d;
+        --error-soft: #f5e9e5;
+
+        /* type scale (used everywhere so sizes never drift) */
+        --font-sans: "Inter", -apple-system, "Segoe UI", sans-serif;
+        --font-serif: "Source Serif 4", serif;
+        --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+        --fs-title: 36px;
+        --fs-lead: 15px;
+        --fs-heading: 15px;
+        --fs-body: 13.5px;
+        --fs-small: 12.5px;
+        --fs-mono: 12.5px;
+
+        --gutter: 32px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--font-sans);
+        font-size: var(--fs-body);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* ---------- Page shell ----------
+         Left column: intro on top, upload card fills the rest and
+         lines up with the bottom of the export card.
+         Right column: review (fills remaining height) + export (fixed). */
+
+      .page {
+        height: 100vh;
+        width: 100%;
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 24px var(--gutter) 16px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+        grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+        grid-template-areas:
+          "masthead masthead"
+          "intro    edit"
+          "upload   edit"
+          "upload   export"
+          "foot     foot";
+        column-gap: 20px;
+        row-gap: 14px;
+      }
+
+      /* ---------- Masthead ---------- */
+
+      .masthead {
+        grid-area: masthead;
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 16px;
+        margin-bottom: 6px;
+      }
+
+      .mark {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+      }
+
+      .mark svg {
+        width: 22px;
+        height: 22px;
+        flex: none;
+        transform: translateY(2px);
+      }
+
+      .mark span {
+        font-family: var(--font-serif);
+        font-size: 21px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+
+      .masthead p {
+        margin: 0;
+        font-size: var(--fs-small);
+        color: var(--ink-soft);
+      }
+
+      /* ---------- Intro ---------- */
+
+      .intro {
+        grid-area: intro;
+        padding: 6px 0 18px;
+      }
+
+      .intro h1 {
+        font-family: var(--font-serif);
+        font-weight: 400;
+        font-size: var(--fs-title);
+        line-height: 1.22;
+        letter-spacing: -0.015em;
+        margin: 0 0 16px;
+        max-width: 20ch;
+      }
+
+      .intro p {
+        font-size: var(--fs-lead);
+        line-height: 1.65;
+        color: var(--ink-soft);
+        max-width: 54ch;
+        margin: 0;
+      }
+
+      /* ---------- Step cards ---------- */
+
+      .step {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        padding: 18px 22px;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      #stepUpload {
+        grid-area: upload;
+      }
+
+      #stepEdit {
+        grid-area: edit;
+      }
+
+      #stepExport {
+        grid-area: export;
+      }
+
+      .step-number {
+        font-family: var(--font-mono);
+        font-size: var(--fs-small);
+        color: var(--ink-soft);
+        letter-spacing: 0.04em;
+        line-height: 1;
+        margin-bottom: 10px;
+        flex: none;
+      }
+
+      .step.is-active .step-number {
+        color: var(--accent);
+      }
+
+      .step-body {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        min-width: 0;
+        flex: 1;
+      }
+
+      .step-body h2 {
+        font-family: var(--font-sans);
+        font-size: var(--fs-heading);
+        font-weight: 600;
+        margin: 0 0 4px;
+        letter-spacing: -0.01em;
+        flex: none;
+      }
+
+      .step-body > p {
+        font-size: var(--fs-body);
+        color: var(--ink-soft);
+        margin: 0 0 12px;
+        line-height: 1.5;
+        flex: none;
+      }
+
+      /* ---------- Upload ---------- */
+
+      .dropzone {
+        position: relative;
+        border: 1px dashed #c7c3b8;
+        border-radius: 3px;
+        background: #fbfaf7;
+        padding: 16px 18px;
+        transition:
+          border-color 0.15s ease,
+          background 0.15s ease;
+        flex: none;
+      }
+
+      .dropzone:hover {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+      }
+
+      .dropzone input[type="file"] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+      }
+
+      .dropzone-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        pointer-events: none;
+      }
+
+      .dropzone-row svg {
+        flex: none;
+        width: 20px;
+        height: 20px;
+        color: var(--accent);
+      }
+
+      .dropzone-row .label {
+        font-size: var(--fs-body);
+      }
+
+      .dropzone-row .label strong {
+        font-weight: 500;
+        color: var(--ink);
+      }
+
+      .dropzone-row .label span {
+        color: var(--ink-soft);
+      }
+
+      /* Preview fills the space between the dropzone and the Extract button.
+         It scrolls internally, so the button is never pushed out of view. */
+
+      #preview {
+        margin-top: 12px;
+        flex: 1;
+        min-height: 0;
+        overflow-x: auto;
+        overflow-y: hidden;
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        background: #fbfaf7;
+      }
+
+      #preview:empty::before {
+        content: "Image previews will appear here.";
+        font-size: var(--fs-small);
+        color: #a9a69c;
+      }
+
+      #preview img {
+        flex: 0 0 auto;
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+        border-radius: 2px;
+        border: 1px solid var(--line);
+      }
+
+      /* ---------- Buttons ---------- */
+
+      button {
+        font-family: var(--font-sans);
+        font-size: var(--fs-body);
+        font-weight: 500;
+        line-height: 1.2;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        padding: 11px 18px;
+        position: relative;
+        color: var(--surface);
+        background: var(--ink);
+        transition: background 0.15s ease;
+      }
+
+      button:hover:not(:disabled) {
+        background: #35342f;
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.55;
+      }
+
+      button.primary {
+        background: var(--accent);
+      }
+      button.primary:hover:not(:disabled) {
+        background: #253d31;
+      }
+
+      .btn-row {
+        display: flex;
+        gap: 10px;
+        margin-top: 12px;
+        flex: none;
+      }
+
+      .btn-row button {
+        flex: 1;
+      }
+
+      .button-spinner {
+        display: none;
+        width: 13px;
+        height: 13px;
+        border: 2px solid rgba(255, 255, 255, 0.35);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        margin-right: 8px;
+      }
+
+      button.is-loading .button-spinner {
+        display: inline-block;
+        vertical-align: -2px;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* ---------- Review card: textarea fills the height ---------- */
+
+      textarea {
+        flex: 1;
+        width: 100%;
+        min-height: 0;
+        resize: none;
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        background: var(--surface);
+        padding: 14px 16px;
+        font-family: var(--font-mono);
+        font-size: var(--fs-mono);
+        line-height: 1.7;
+        color: var(--ink);
+      }
+
+      textarea::placeholder {
+        color: #a9a69c;
+      }
+
+      textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+
+      textarea:disabled {
+        color: #a9a69c;
+        background: #fafaf8;
+      }
+
+      /* ---------- Export card: fixed, two direct download buttons ---------- */
+
+      #stepExport .step-body {
+        flex: none;
+      }
+
+      #stepExport .step-body > p {
+        margin-bottom: 0;
+      }
+
+      #stepExport .btn-row {
+        margin-top: 12px;
+      }
+
+      /* ---------- Status ---------- */
+
+      .status-line {
+        margin-top: 10px;
+        font-size: var(--fs-small);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 16px;
+        flex: none;
+      }
+
+      .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--ink-soft);
+        flex: none;
+      }
+
+      .status-line.ok {
+        color: var(--accent);
+      }
+      .status-line.ok .status-dot {
+        background: var(--accent);
+      }
+
+      .status-line.error {
+        color: var(--error);
+      }
+      .status-line.error .status-dot {
+        background: var(--error);
+      }
+
+      /* ---------- Footer ---------- */
+
+      .foot {
+        grid-area: foot;
+        margin: 0;
+        font-size: var(--fs-small);
+        color: var(--ink-soft);
+        text-align: center;
+      }
+
+      /* ---------- Small screens: single column, still no page scroll ---------- */
+
+      @media (max-width: 860px) {
+        :root {
+          --gutter: 16px;
+          --fs-title: 22px;
+          --fs-lead: 13.5px;
+        }
+
+        .page {
+          padding-top: 14px;
+          padding-bottom: 10px;
+          row-gap: 10px;
+          grid-template-columns: minmax(0, 1fr);
+          grid-template-rows: auto auto auto minmax(0, 1fr) auto auto;
+          grid-template-areas:
+            "masthead"
+            "intro"
+            "upload"
+            "edit"
+            "export"
+            "foot";
+        }
+
+        .masthead {
+          padding-bottom: 10px;
+          margin-bottom: 0;
+        }
+
+        .masthead p {
+          display: none;
+        }
+
+        .intro {
+          padding: 0;
+        }
+
+        .intro h1 {
+          margin-bottom: 0;
+          max-width: none;
+        }
+
+        .intro p {
+          display: none;
+        }
+
+        .step {
+          padding: 12px 14px;
+        }
+
+        .step-number {
+          margin-bottom: 6px;
+        }
+
+        .step-body > p {
+          display: none;
+        }
+
+        .dropzone {
+          padding: 12px 14px;
+        }
+
+        #preview {
+          flex: none;
+          flex-wrap: nowrap;
+          overflow-x: auto;
+          overflow-y: hidden;
+          padding: 8px;
+        }
+
+        #preview:empty {
+          display: none;
+        }
+
+        #preview img {
+          width: 48px;
+          height: 48px;
+        }
+
+        .btn-row {
+          margin-top: 8px;
+        }
+
+        button {
+          padding: 9px 14px;
+        }
+
+        .foot {
+          font-size: 11.5px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="masthead">
+        <div class="mark">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              x="4"
+              y="2.5"
+              width="16"
+              height="19"
+              rx="1"
+              stroke="#1c1b18"
+              stroke-width="1.4"
+            />
+            <path
+              d="M8 8H16"
+              stroke="#2f4b3c"
+              stroke-width="1.4"
+              stroke-linecap="round"
+            />
+            <path
+              d="M8 12H16"
+              stroke="#1c1b18"
+              stroke-width="1.4"
+              stroke-linecap="round"
+            />
+            <path
+              d="M8 16H13"
+              stroke="#1c1b18"
+              stroke-width="1.4"
+              stroke-linecap="round"
+            />
+          </svg>
+          <span>Lecture-to-Document</span>
+        </div>
+        <p>Photos → text → document</p>
+      </header>
+
+      <section class="intro">
+        <h1>Turn a stack of photos into a document you can edit.</h1>
+        <p>
+          Upload images of a page, letter, or handwritten note.
+          Lecture-to-Document pulls out the text, lets you fix anything it
+          missed, then hands you back a clean DOCX or PDF.
+        </p>
+      </section>
+
+      <div class="step is-active" id="stepUpload">
+        <div class="step-number">01</div>
+        <div class="step-body">
+          <h2>Add your images</h2>
+          <p>
+            JPG or PNG, as many as you need. They're read in the order you
+            select them.
+          </p>
+
+          <div class="dropzone">
+            <input type="file" id="images" multiple accept="image/*" />
+            <div class="dropzone-row">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M12 16V4M12 4L7 9M12 4L17 9"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M4 16V18C4 19.1046 4.89543 20 6 20H18C19.1046 20 20 19.1046 20 18V16"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <div class="label">
+                <strong>Choose files</strong>
+                <span id="fileCountLabel">— or drop them here</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="preview"></div>
+
+          <div class="btn-row">
+            <button id="extractBtn" class="primary" disabled>
+              <span class="button-spinner"></span
+              ><span class="btn-label">Extract text</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="stepEdit">
+        <div class="step-number">02</div>
+        <div class="step-body">
+          <h2>Review the text</h2>
+          <p>Fix anything the extraction got wrong before you export.</p>
+
+          <textarea
+            id="docPreview"
+            placeholder="Extracted text will appear here once you run step one."
+            disabled
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="step" id="stepExport">
+        <div class="step-number">03</div>
+        <div class="step-body">
+          <h2>Export</h2>
+          <p>Download your document as a DOCX or PDF.</p>
+
+          <div class="btn-row">
+            <button id="downloadDocxBtn" class="primary" disabled>
+              <span class="button-spinner"></span
+              ><span class="btn-label">Download DOCX</span>
+            </button>
+            <button id="downloadPdfBtn" class="primary" disabled>
+              <span class="button-spinner"></span
+              ><span class="btn-label">Download PDF</span>
+            </button>
+          </div>
+
+          <div class="status-line" id="fileStatus"></div>
+        </div>
+      </div>
+
+      <p class="foot">
+        Files are processed for this session only and aren't stored.
+      </p>
+    </div>
+
+    <script>
+      // --- Get device_id from the URL ---
+      const pathParts = window.location.pathname.split("/").filter((p) => p);
+      const DEVICE_ID = pathParts[0] || "default_device";
+      const API_URL = `${window.location.origin}/${DEVICE_ID}`;
+
+      const imagesInput = document.getElementById("images");
+      const previewDiv = document.getElementById("preview");
+      const fileCountLabel = document.getElementById("fileCountLabel");
+      const extractBtn = document.getElementById("extractBtn");
+      const docPreview = document.getElementById("docPreview");
+
+      const downloadDocxBtn = document.getElementById("downloadDocxBtn");
+      const downloadPdfBtn = document.getElementById("downloadPdfBtn");
+      const fileStatus = document.getElementById("fileStatus");
+
+      const stepEdit = document.getElementById("stepEdit");
+      const stepExport = document.getElementById("stepExport");
+
+      function setStatus(text, kind) {
+        fileStatus.className = "status-line" + (kind ? " " + kind : "");
+        fileStatus.innerHTML = text
+          ? `<span class="status-dot"></span>${text}`
+          : "";
+      }
+
+      function setLoading(btn, loading, label) {
+        btn.disabled = loading;
+        btn.classList.toggle("is-loading", loading);
+        btn.querySelector(".btn-label").textContent = label;
+      }
+
+      // --- Preview images ---
+      imagesInput.addEventListener("change", () => {
+        previewDiv.innerHTML = "";
+        const files = imagesInput.files;
+
+        if (files.length === 0) {
+          extractBtn.disabled = true;
+          fileCountLabel.textContent = "— or drop them here";
+          return;
+        }
+
+        fileCountLabel.textContent = `${files.length} file${files.length > 1 ? "s" : ""} selected`;
+        extractBtn.disabled = false;
+        setStatus("", null);
+
+        for (let i = 0; i < files.length; i++) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = document.createElement("img");
+            img.src = e.target.result;
+            previewDiv.appendChild(img);
+          };
+          reader.readAsDataURL(files[i]);
+        }
+      });
+
+      // --- Extract text ---
+      extractBtn.addEventListener("click", async () => {
+        const files = imagesInput.files;
+        if (files.length === 0) {
+          setStatus("Select at least one image first.", "error");
+          return;
+        }
+
+        setLoading(extractBtn, true, "Extracting…");
+
+        const formData = new FormData();
+        for (let i = 0; i < files.length; i++)
+          formData.append("files", files[i]);
+
+        try {
+          const response = await fetch(`${API_URL}/extract_text`, {
+            method: "POST",
+            body: formData,
+          });
+          if (response.ok) {
+            const data = await response.json();
+            docPreview.disabled = false;
+            docPreview.value = data.preview_text;
+            downloadDocxBtn.disabled = false;
+            downloadPdfBtn.disabled = false;
+            stepEdit.classList.add("is-active");
+            stepExport.classList.add("is-active");
+            setStatus("Text extracted. Edit it, then download below.", "ok");
+          } else {
+            setStatus("Couldn't extract text from those images.", "error");
+          }
+        } catch {
+          setStatus("Couldn't reach the server.", "error");
+        } finally {
+          setLoading(extractBtn, false, "Extract text");
+        }
+      });
+
+      // --- Generate and download directly ---
+      async function downloadFile(type) {
+        const text = docPreview.value.trim();
+        if (!text) {
+          setStatus("There's no text to export yet.", "error");
+          return;
+        }
+
+        const btn = type === "docx" ? downloadDocxBtn : downloadPdfBtn;
+        const otherBtn = type === "docx" ? downloadPdfBtn : downloadDocxBtn;
+        const label = type === "docx" ? "Download DOCX" : "Download PDF";
+
+        setLoading(btn, true, `Preparing ${type.toUpperCase()}…`);
+        otherBtn.disabled = true;
+
+        const formData = new FormData();
+        formData.append("text", text);
+
+        try {
+          const url =
+            type === "docx"
+              ? `${API_URL}/generate_docx`
+              : `${API_URL}/generate_pdf`;
+          const response = await fetch(url, { method: "POST", body: formData });
+          if (response.ok) {
+            const blob = await response.blob();
+            const objectUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = objectUrl;
+            a.download = `extracted_text.${type}`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(objectUrl);
+            setStatus(`${type.toUpperCase()} downloaded.`, "ok");
+          } else {
+            setStatus(`Couldn't generate the ${type.toUpperCase()}.`, "error");
+          }
+        } catch {
+          setStatus("Couldn't reach the server.", "error");
+        } finally {
+          setLoading(btn, false, label);
+          otherBtn.disabled = false;
+        }
+      }
+
+      downloadDocxBtn.addEventListener("click", () => downloadFile("docx"));
+      downloadPdfBtn.addEventListener("click", () => downloadFile("pdf"));
+    </script>
+  </body>
+</html>

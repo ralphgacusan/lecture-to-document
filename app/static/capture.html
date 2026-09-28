@@ -1,0 +1,1007 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lecture-to-Document — Capture to Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #f2f0eb;
+        --surface: #ffffff;
+        --ink: #1c1b18;
+        --ink-soft: #63615a;
+        --line: #e3e0d8;
+        --accent: #2f4b3c;
+        --accent-soft: #e7ede9;
+        --error: #a13d2d;
+        --error-soft: #f5e9e5;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family:
+          "Inter",
+          -apple-system,
+          "Segoe UI",
+          sans-serif;
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .page {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 72px 24px 100px;
+      }
+
+      /* ---------- Masthead ---------- */
+
+      .masthead {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 28px;
+        margin-bottom: 40px;
+      }
+
+      .mark {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+      }
+
+      .mark svg {
+        width: 22px;
+        height: 22px;
+        flex: none;
+        transform: translateY(2px);
+      }
+
+      .mark span {
+        font-family: "Source Serif 4", serif;
+        font-size: 21px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+
+      .masthead p {
+        margin: 0;
+        font-size: 13px;
+        color: var(--ink-soft);
+      }
+
+      /* ---------- Intro ---------- */
+
+      .intro h1 {
+        font-family: "Source Serif 4", serif;
+        font-weight: 400;
+        font-size: 32px;
+        line-height: 1.25;
+        letter-spacing: -0.01em;
+        margin: 0 0 14px;
+        max-width: 22ch;
+      }
+
+      .intro p {
+        font-size: 15.5px;
+        line-height: 1.6;
+        color: var(--ink-soft);
+        max-width: 48ch;
+        margin: 0 0 40px;
+      }
+
+      /* ---------- Device status panel ---------- */
+
+      .status-panel {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1px;
+        background: var(--line);
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        overflow: hidden;
+        margin-bottom: 56px;
+      }
+
+      .status-cell {
+        background: var(--surface);
+        padding: 14px 16px;
+      }
+
+      .status-cell .label {
+        display: block;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--ink-soft);
+        margin-bottom: 6px;
+      }
+
+      .status-cell .value {
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: 13.5px;
+      }
+
+      .status-cell .value.dot::before {
+        content: "";
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--ink-soft);
+        margin-right: 7px;
+      }
+
+      .status-cell .value.dot.on::before {
+        background: var(--accent);
+      }
+
+      /* ---------- Steps ---------- */
+
+      .step {
+        display: grid;
+        grid-template-columns: 44px 1fr;
+        gap: 24px;
+        padding: 36px 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .step:last-of-type {
+        border-bottom: 1px solid var(--line);
+      }
+
+      .step-number {
+        font-family: "Source Serif 4", serif;
+        font-size: 26px;
+        color: var(--ink-soft);
+        line-height: 1;
+        padding-top: 2px;
+      }
+
+      .step-body h2 {
+        font-size: 15px;
+        font-weight: 600;
+        margin: 0 0 4px;
+        letter-spacing: -0.01em;
+      }
+
+      .step-body > p {
+        font-size: 13.5px;
+        color: var(--ink-soft);
+        margin: 0 0 20px;
+        line-height: 1.5;
+      }
+
+      .hint {
+        font-size: 12.5px;
+        color: var(--ink-soft);
+        margin-top: 10px;
+      }
+
+      /* ---------- Preview grid ---------- */
+
+      #preview {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 8px;
+        padding: 12px;
+        min-height: 96px;
+        border: 1px dashed var(--line);
+        border-radius: 3px;
+        background: var(--surface);
+        margin-top: 4px;
+      }
+
+      #preview img {
+        flex: 0 0 auto;
+        width: 76px;
+        height: 76px;
+        object-fit: cover;
+        border-radius: 2px;
+        border: 1px solid var(--line);
+        cursor: pointer;
+        transition:
+          opacity 0.15s ease,
+          border-color 0.15s ease;
+      }
+
+      #preview img:hover {
+        border-color: #c7c3b8;
+      }
+
+      #preview img.selected {
+        opacity: 0.4;
+        border: 1.5px solid var(--error);
+      }
+
+      /* ---------- Buttons ---------- */
+
+      button {
+        font-family: inherit;
+        font-size: 13.5px;
+        font-weight: 500;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        padding: 11px 18px;
+        position: relative;
+        color: var(--surface);
+        background: var(--ink);
+        transition: background 0.15s ease;
+      }
+
+      button:hover:not(:disabled) {
+        background: #35342f;
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+
+      button.primary {
+        background: var(--accent);
+      }
+      button.primary:hover:not(:disabled) {
+        background: #253d31;
+      }
+
+      button.danger {
+        background: var(--error);
+      }
+      button.danger:hover:not(:disabled) {
+        background: #86331f;
+      }
+
+      button.ghost {
+        background: transparent;
+        color: var(--ink);
+        border: 1px solid var(--line);
+        padding: 10px 17px;
+      }
+      button.ghost:hover:not(:disabled) {
+        border-color: #c7c3b8;
+        background: var(--surface);
+      }
+
+      .button-row {
+        display: flex;
+        gap: 10px;
+        margin-top: 14px;
+        flex-wrap: wrap;
+      }
+
+      .button-row button {
+        flex: 1;
+        min-width: 140px;
+      }
+
+      #startCaptureBtn {
+        width: 100%;
+        margin-top: 4px;
+      }
+
+      .button-spinner {
+        display: none;
+        width: 13px;
+        height: 13px;
+        border: 2px solid rgba(255, 255, 255, 0.35);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        margin-right: 8px;
+        vertical-align: -2px;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* ---------- Textarea ---------- */
+
+      textarea {
+        width: 100%;
+        min-height: 190px;
+        resize: vertical;
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        background: var(--surface);
+        padding: 16px;
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: 12.5px;
+        line-height: 1.7;
+        color: var(--ink);
+      }
+
+      textarea::placeholder {
+        color: #a9a69c;
+      }
+
+      textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+
+      /* ---------- File status ---------- */
+
+      .status {
+        margin-top: 18px;
+        font-size: 13px;
+        color: var(--ink-soft);
+        min-height: 18px;
+      }
+
+      /* ---------- Footer ---------- */
+
+      .foot {
+        margin-top: 48px;
+        font-size: 12.5px;
+        color: var(--ink-soft);
+        text-align: center;
+      }
+
+      @media (max-width: 520px) {
+        .page {
+          padding: 48px 18px 80px;
+        }
+        .step {
+          grid-template-columns: 28px 1fr;
+          gap: 14px;
+        }
+        .intro h1 {
+          font-size: 26px;
+        }
+        .status-panel {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="masthead">
+        <div class="mark">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              x="4"
+              y="2.5"
+              width="16"
+              height="19"
+              rx="1"
+              stroke="#1c1b18"
+              stroke-width="1.4"
+            />
+            <path
+              d="M8 8H16"
+              stroke="#2f4b3c"
+              stroke-width="1.4"
+              stroke-linecap="round"
+            />
+            <path
+              d="M8 12H16"
+              stroke="#1c1b18"
+              stroke-width="1.4"
+              stroke-linecap="round"
+            />
+            <path
+              d="M8 16H13"
+              stroke="#1c1b18"
+              stroke-width="1.4"
+              stroke-linecap="round"
+            />
+          </svg>
+          <span>Lecture-to-Document</span>
+        </div>
+        <p>Device → text → document</p>
+      </header>
+
+      <section class="intro">
+        <h1>Capture pages from your device, then turn them into a document.</h1>
+        <p>
+          Start a capture session on the connected device, review what it picked
+          up, then extract the text and export it as DOCX or PDF.
+        </p>
+      </section>
+
+      <div class="status-panel" id="captureStatusPanel">
+        <div class="status-cell">
+          <span class="label">Capture status</span>
+          <span class="value" id="captureStatus">Idle</span>
+        </div>
+        <div class="status-cell">
+          <span class="label">Connected</span>
+          <span class="value dot" id="connectedStatus">No</span>
+        </div>
+        <div class="status-cell">
+          <span class="label">Last seen</span>
+          <span class="value" id="lastSeen">–</span>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">01</div>
+        <div class="step-body">
+          <h2>Capture</h2>
+          <p>Start capturing once the device shows as connected above.</p>
+
+          <button id="startCaptureBtn" disabled>
+            <span class="button-spinner" id="startSpinner"></span>Start
+            capturing
+          </button>
+
+          <div class="button-row" id="captureButtons" style="display: none">
+            <button id="pauseCaptureBtn" class="primary">
+              <span class="button-spinner" id="pauseSpinner"></span>Pause
+              capture
+            </button>
+            <button id="finishCaptureBtn" class="danger">
+              <span class="button-spinner" id="finishSpinner"></span>Finish
+              capture
+            </button>
+          </div>
+
+          <div class="button-row" id="postCaptureButtons" style="display: none">
+            <button id="deleteCapturesBtn" class="ghost">
+              <span class="button-spinner" id="deleteSpinner"></span>Delete
+              captures
+            </button>
+            <button id="extractTextBtn" class="primary">
+              <span class="button-spinner" id="extractSpinner"></span>Extract
+              text
+            </button>
+          </div>
+
+          <div id="preview"></div>
+          <p class="hint">
+            Click an image to mark it for deletion — click again to unmark.
+          </p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">02</div>
+        <div class="step-body">
+          <h2>Review</h2>
+          <p>Fix anything the extraction got wrong before you export.</p>
+
+          <textarea
+            id="docPreview"
+            placeholder="Extracted text will appear here..."
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">03</div>
+        <div class="step-body">
+          <h2>Export</h2>
+          <p>Generate a document, then save it to your computer.</p>
+
+          <div class="button-row" id="generateButtons" style="display: none">
+            <button id="generateDocxBtn" class="ghost">
+              <span class="button-spinner" id="docxSpinner"></span>Generate DOCX
+            </button>
+            <button id="generatePdfBtn" class="ghost">
+              <span class="button-spinner" id="pdfSpinner"></span>Generate PDF
+            </button>
+          </div>
+
+          <div class="button-row">
+            <button
+              id="downloadBtn"
+              class="primary"
+              style="display: none"
+            ></button>
+          </div>
+
+          <div class="status" id="fileStatus">Waiting for capture...</div>
+        </div>
+      </div>
+
+      <p class="foot">
+        Files are processed for this session only and aren't stored.
+      </p>
+    </div>
+
+    <script>
+      const pathParts = window.location.pathname.split("/").filter((p) => p);
+      const DEVICE_ID = pathParts[0] || "default_device";
+      const API_URL = `${window.location.origin}/${DEVICE_ID}`;
+
+      const startBtn = document.getElementById("startCaptureBtn");
+      const captureButtons = document.getElementById("captureButtons");
+      const postCaptureButtons = document.getElementById("postCaptureButtons");
+      const pauseBtn = document.getElementById("pauseCaptureBtn");
+      const finishBtn = document.getElementById("finishCaptureBtn");
+      const deleteBtn = document.getElementById("deleteCapturesBtn");
+      const extractBtn = document.getElementById("extractTextBtn");
+      const previewDiv = document.getElementById("preview");
+      const docPreview = document.getElementById("docPreview");
+      const fileStatus = document.getElementById("fileStatus");
+      const generateButtons = document.getElementById("generateButtons");
+      const generateDocxBtn = document.getElementById("generateDocxBtn");
+      const generatePdfBtn = document.getElementById("generatePdfBtn");
+      const downloadBtn = document.getElementById("downloadBtn");
+
+      const captureStatus = document.getElementById("captureStatus");
+      const connectedStatus = document.getElementById("connectedStatus");
+      const lastSeen = document.getElementById("lastSeen");
+
+      // --- INITIAL STATE ---
+      captureStatus.textContent = "Idle";
+      connectedStatus.textContent = "No";
+      startBtn.disabled = true; // Start button is disabled until connected
+      startBtn.style.display = "block";
+      captureButtons.style.display = "none";
+      postCaptureButtons.style.display = "none";
+      generateButtons.style.display = "none";
+      downloadBtn.style.display = "none";
+      fileStatus.textContent = "Waiting for device connection...";
+      previewDiv.style.display = "none";
+
+      let isPaused = false;
+      let lastGeneratedBlob = null;
+      let lastFileType = "";
+
+      // -------------------------------
+      // 1️⃣ Device heartbeat & status (every 5s)
+      // -------------------------------
+      async function updateDeviceStatus() {
+        try {
+          const res = await fetch(`${API_URL}/get_status`);
+          const device = res.ok ? await res.json() : null;
+
+          const isConnected = device?.connected ?? false;
+          connectedStatus.textContent = isConnected ? "Yes" : "No";
+          connectedStatus.classList.toggle("on", isConnected);
+
+          if (!isConnected) {
+            // FORCE UI to disabled start capture
+            forceIdleUI();
+            captureStatus.textContent = "Idle";
+            startBtn.disabled = true;
+            startBtn.style.display = "block";
+
+            // Hide other buttons
+            captureButtons.style.display = "none";
+            postCaptureButtons.style.display = "none";
+            generateButtons.style.display = "none";
+            downloadBtn.style.display = "none";
+
+            fileStatus.textContent =
+              "Device disconnected. Waiting for connection...";
+            previewDiv.style.display = "none";
+
+            // Automatically delete all uploaded images
+            if (captureStatus.textContent !== "Start") {
+              await updateStatus("idle");
+            }
+            await deleteAllUploads();
+          } else {
+            // Device connected → normal behavior
+            captureStatus.textContent =
+              device.status.charAt(0).toUpperCase() + device.status.slice(1);
+            startBtn.disabled = !isConnected;
+
+            // Update last seen
+            lastSeen.textContent = device.last_seen
+              ? new Date(device.last_seen * 1000).toLocaleTimeString()
+              : "-";
+          }
+        } catch (err) {
+          console.error(err);
+          // Treat as disconnected
+          forceIdleUI();
+          await deleteAllUploads(true);
+
+          connectedStatus.textContent = "No";
+          connectedStatus.classList.remove("on");
+          captureStatus.textContent = "Idle";
+          startBtn.disabled = true;
+          startBtn.style.display = "block";
+          captureButtons.style.display = "none";
+          postCaptureButtons.style.display = "none";
+          generateButtons.style.display = "none";
+          downloadBtn.style.display = "none";
+          fileStatus.textContent =
+            "Device disconnected. Waiting for connection...";
+          previewDiv.style.display = "none";
+
+          // Auto-delete images in disconnected state
+        }
+      }
+
+      function forceIdleUI() {
+        // Capture & connected status
+        captureStatus.textContent = "Idle";
+        connectedStatus.textContent = "No";
+        connectedStatus.classList.remove("on");
+
+        // Buttons
+        startBtn.disabled = true;
+        startBtn.style.display = "block";
+        captureButtons.style.display = "none";
+        postCaptureButtons.style.display = "none";
+        generateButtons.style.display = "none";
+        downloadBtn.style.display = "none";
+
+        // File status
+        fileStatus.textContent =
+          "Device disconnected. Waiting for connection...";
+
+        // Hide preview
+        previewDiv.style.display = "none";
+      }
+
+      // Poll status every 5 seconds
+      setInterval(updateDeviceStatus, 5000);
+      updateDeviceStatus();
+
+      async function updateStatus(status) {
+        const formData = new FormData();
+        formData.append("status", status);
+        await fetch(`${API_URL}/set_status`, {
+          method: "POST",
+          body: formData,
+        });
+        captureStatus.textContent =
+          status.charAt(0).toUpperCase() + status.slice(1);
+
+        updateUIByStatus(status);
+      }
+
+      // -------------------------------
+      // 2️⃣ Preview uploaded images (every 5s)
+      // -------------------------------
+      async function fetchUploadedImages() {
+        try {
+          const res = await fetch(`${API_URL}/list_uploads`);
+          if (!res.ok) throw new Error("Failed to fetch uploads");
+          const data = await res.json();
+
+          // Remember selected images
+          const selectedFiles = Array.from(
+            previewDiv.querySelectorAll("img.selected"),
+          ).map((img) => img.src.split("/").pop());
+
+          previewDiv.innerHTML = "";
+          if (data.files.length > 0) {
+            if (captureStatus.textContent.toLowerCase() !== "start") {
+              previewDiv.style.display = "flex";
+              postCaptureButtons.style.display = "flex";
+              fileStatus.textContent = "Images ready. You can extract text.";
+            } else {
+              previewDiv.style.display = "none";
+              postCaptureButtons.style.display = "none";
+            }
+
+            data.files.forEach((file) => {
+              const img = document.createElement("img");
+              img.src = `${API_URL}/get_upload/${file}`;
+
+              // Restore selection
+              if (selectedFiles.includes(file)) {
+                img.classList.add("selected");
+              }
+
+              previewDiv.appendChild(img);
+            });
+            makeImagesRemovable();
+          } else {
+            previewDiv.style.display = "none";
+          }
+        } catch {
+          fileStatus.textContent = "Failed to fetch uploaded images.";
+        }
+      }
+      setInterval(fetchUploadedImages, 5000);
+
+      // -------------------------------
+      // 3️⃣ Button actions
+      // -------------------------------
+      startBtn.addEventListener("click", async () => {
+        // Hide post-capture buttons (delete & extract)
+        postCaptureButtons.style.display = "none";
+
+        // Show capture buttons
+        captureButtons.style.display = "flex";
+
+        // Hide "Start Capturing" since we’re actively capturing
+        startBtn.style.display = "none";
+
+        fileStatus.textContent = "Capturing images...";
+        await updateStatus("start");
+      });
+
+      pauseBtn.addEventListener("click", async () => {
+        isPaused = !isPaused;
+        pauseBtn.textContent = isPaused ? "Continue Capture" : "Pause Capture";
+        fileStatus.textContent = isPaused
+          ? "Capture paused."
+          : "Resuming capture...";
+        await updateStatus(isPaused ? "pause" : "start");
+      });
+
+      finishBtn.addEventListener("click", async () => {
+        // Hide capture buttons
+        captureButtons.style.display = "none";
+
+        // Show post-capture buttons (delete & extract)
+        postCaptureButtons.style.display = "flex";
+
+        // Show "Start Capturing" again so user can start a new session
+        startBtn.style.display = "block";
+
+        // Clear preview (optional)
+        // previewDiv.innerHTML = ""; // You can keep images visible if desired
+
+        fileStatus.textContent =
+          "Capture finished. You can delete or extract images.";
+        await updateStatus("finish");
+
+        fetchUploadedImages();
+      });
+
+      deleteBtn.addEventListener("click", async () => {
+        let imgs = Array.from(previewDiv.querySelectorAll("img"));
+        let selectedImgs = imgs.filter((img) =>
+          img.classList.contains("selected"),
+        );
+
+        let filesToDelete =
+          selectedImgs.length > 0
+            ? selectedImgs.map((img) => img.src.split("/").pop())
+            : imgs.map((img) => img.src.split("/").pop());
+
+        if (filesToDelete.length === 0) return;
+
+        if (
+          !confirm(
+            `Are you sure you want to delete ${filesToDelete.length} image(s)?`,
+          )
+        )
+          return;
+
+        fileStatus.textContent = "Deleting captures...";
+
+        try {
+          const res = await fetch(`${API_URL}/delete_uploads`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(filesToDelete),
+          });
+
+          if (!res.ok) throw new Error("Failed to delete uploads");
+
+          const data = await res.json();
+
+          // Remove deleted images from preview
+          filesToDelete.forEach((f) => {
+            const img = previewDiv.querySelector(`img[src$="${f}"]`);
+            if (img) img.remove();
+          });
+
+          docPreview.value = "";
+          postCaptureButtons.style.display =
+            previewDiv.children.length > 0 ? "flex" : "none";
+          generateButtons.style.display = "none";
+          downloadBtn.style.display = "none";
+          startBtn.style.display = "block";
+
+          fileStatus.textContent = `Deleted ${data.deleted_files.length} image(s).`;
+        } catch (err) {
+          console.error(err);
+          fileStatus.textContent = "Error deleting captures.";
+        }
+      });
+
+      extractBtn.addEventListener("click", async () => {
+        fileStatus.textContent = "Extracting text...";
+        try {
+          const formData = new FormData();
+          const imgs = Array.from(previewDiv.querySelectorAll("img")).filter(
+            (img) => !img.classList.contains("selected"),
+          ); // skip selected
+          if (imgs.length === 0) {
+            return alert("No images selected for extraction!");
+          }
+          // Convert preview images to blobs
+
+          for (const img of imgs) {
+            const res = await fetch(img.src);
+            const blob = await res.blob();
+            const fileName = img.src.split("/").pop();
+            formData.append(
+              "files",
+              new File([blob], fileName, { type: blob.type }),
+            );
+          }
+
+          // Send actual files to backend
+          const res = await fetch(`${API_URL}/extract_text`, {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!res.ok) throw new Error("Failed to extract text");
+
+          const data = await res.json();
+          docPreview.value = data.preview_text || "";
+          fileStatus.textContent =
+            "Text extracted. You can now edit or generate DOCX/PDF.";
+          generateButtons.style.display = "flex";
+        } catch (err) {
+          console.error(err);
+          fileStatus.textContent = "Error extracting text.";
+        }
+      });
+
+      async function generateFile(type) {
+        const text = docPreview.value.trim();
+        if (!text) return alert("Textarea is empty!");
+        const btn = type === "docx" ? generateDocxBtn : generatePdfBtn;
+        btn.disabled = true;
+        btn.querySelector(".button-spinner").style.display = "inline-block";
+        btn.innerText = ` Generating ${type.toUpperCase()}...`;
+
+        const formData = new FormData();
+        formData.append("text", text);
+        try {
+          const url =
+            type === "docx"
+              ? `${API_URL}/generate_docx`
+              : `${API_URL}/generate_pdf`;
+          const res = await fetch(url, { method: "POST", body: formData });
+          if (res.ok) {
+            lastGeneratedBlob = await res.blob();
+            lastFileType = type;
+            downloadBtn.textContent = `Download ${type.toUpperCase()}`;
+            downloadBtn.style.display = "block";
+            fileStatus.textContent = `${type.toUpperCase()} generated. Click download to save.`;
+          } else
+            fileStatus.textContent = `Failed to generate ${type.toUpperCase()}.`;
+        } catch {
+          fileStatus.textContent = "Error connecting to backend.";
+        } finally {
+          btn.disabled = false;
+          btn.querySelector(".button-spinner").style.display = "none";
+          btn.innerText = type === "docx" ? "Generate DOCX" : "Generate PDF";
+        }
+      }
+
+      generateDocxBtn.addEventListener("click", () => generateFile("docx"));
+      generatePdfBtn.addEventListener("click", () => generateFile("pdf"));
+
+      downloadBtn.addEventListener("click", () => {
+        if (!lastGeneratedBlob) return;
+        const url = window.URL.createObjectURL(lastGeneratedBlob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `extracted_text.${lastFileType}`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        fileStatus.textContent = `Downloaded ${lastFileType.toUpperCase()}!`;
+      });
+
+      // -------------------------------
+      // 4️⃣ Auto-delete images when idle
+      // -------------------------------
+
+      // async function autoDeleteOnIdle(setRoleIdle = false) {
+      //   if (
+      //     captureStatus.textContent === "Idle" &&
+      //     previewDiv.children.length > 0 &&
+      //     captureButtons.style.display === "none"
+      //   ) {
+      //     console.log("Device is idle. Auto-deleting images...");
+      //     fileStatus.textContent = "Deleting captures...";
+
+      //     try {
+      //       const res = await fetch(`${API_URL}/delete_all_uploads`, {
+      //         method: "DELETE",
+      //       });
+
+      //       if (res.ok) {
+      //         const data = await res.json();
+
+      //         // Clear UI
+      //         previewDiv.innerHTML = "";
+      //         docPreview.value = "";
+      //         postCaptureButtons.style.display = "none";
+      //         generateButtons.style.display = "none";
+      //         downloadBtn.style.display = "none";
+      //         startBtn.style.display = "block";
+
+      //         fileStatus.textContent = `Deleted ${data.deleted_files.length} captures.`;
+
+      //         // Update backend status depending on reason
+      //         if (setRoleIdle) {
+      //           await updateStatus("idle"); // idle-triggered deletion
+      //         } else {
+      //           await updateStatus("delete"); // forced deletion (disconnect)
+      //         }
+      //       } else {
+      //         fileStatus.textContent = "Failed to delete captures.";
+      //       }
+      //     } catch (err) {
+      //       console.error(err);
+      //       fileStatus.textContent = "Error deleting captures.";
+      //     }
+      //   }
+      // }
+
+      // // Check idle every 5 seconds
+      // setInterval(autoDeleteOnIdle, 5000);
+
+      function updateUIByStatus(status) {
+        const normalizedStatus = status.toLowerCase();
+
+        if (normalizedStatus === "start") {
+          // During capturing
+          captureButtons.style.display = "flex";
+          postCaptureButtons.style.display = "none"; // hide delete & extract
+          generateButtons.style.display = "none"; // hide generate buttons
+          downloadBtn.style.display = "none";
+          previewDiv.style.display = "none"; // hide preview
+        } else if (normalizedStatus === "pause") {
+          // Paused capture
+          captureButtons.style.display = "flex";
+          postCaptureButtons.style.display = "none";
+          generateButtons.style.display = "none";
+          downloadBtn.style.display = "none";
+          previewDiv.style.display = "none";
+        } else {
+          // Finished, idle, or other
+          captureButtons.style.display = "none";
+          postCaptureButtons.style.display =
+            previewDiv.children.length > 0 ? "flex" : "none";
+          generateButtons.style.display =
+            docPreview.value.trim() !== "" ? "flex" : "none";
+          downloadBtn.style.display = lastGeneratedBlob ? "block" : "none";
+          previewDiv.style.display =
+            previewDiv.children.length > 0 ? "flex" : "none";
+        }
+      }
+
+      function makeImagesRemovable() {
+        const imgs = Array.from(previewDiv.querySelectorAll("img"));
+        imgs.forEach((img) => {
+          // Remove existing click handlers to avoid duplicates
+          img.onclick = null;
+
+          // Click to toggle selection
+          img.addEventListener("click", async () => {
+            img.classList.toggle("selected");
+          });
+        });
+      }
+    </script>
+  </body>
+</html>
