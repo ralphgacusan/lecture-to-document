@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Lecture-to-Document — Turn photos into documents</title>
+    <title>Lecture-to-Document — Camera Capture</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -21,8 +21,6 @@
         --accent-soft: #e7ede9;
         --error: #a13d2d;
         --error-soft: #f5e9e5;
-
-        /* type scale (used everywhere so sizes never drift) */
         --font-sans: "Inter", -apple-system, "Segoe UI", sans-serif;
         --font-serif: "Source Serif 4", serif;
         --font-mono: "IBM Plex Mono", ui-monospace, monospace;
@@ -32,14 +30,11 @@
         --fs-body: 13.5px;
         --fs-small: 12.5px;
         --fs-mono: 12.5px;
-
         --gutter: 32px;
       }
-
       * {
         box-sizing: border-box;
       }
-
       html,
       body {
         margin: 0;
@@ -47,7 +42,6 @@
         height: 100vh;
         overflow: hidden;
       }
-
       body {
         background: var(--paper);
         color: var(--ink);
@@ -55,8 +49,6 @@
         font-size: var(--fs-body);
         -webkit-font-smoothing: antialiased;
       }
-
-      /* ---------- Page shell ---------- */
 
       .page {
         height: 100vh;
@@ -67,17 +59,10 @@
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
         grid-template-rows: auto auto minmax(0, 1fr) auto auto;
-        grid-template-areas:
-          "masthead masthead"
-          "intro    edit"
-          "upload   edit"
-          "upload   export"
-          "foot     foot";
+        grid-template-areas: "masthead masthead" "capture  intro" "capture  edit" "capture  export" "foot     foot";
         column-gap: 20px;
         row-gap: 14px;
       }
-
-      /* ---------- Masthead ---------- */
 
       .masthead {
         grid-area: masthead;
@@ -88,59 +73,49 @@
         padding-bottom: 16px;
         margin-bottom: 6px;
       }
-
       .mark {
         display: flex;
         align-items: baseline;
         gap: 10px;
       }
-
       .mark svg {
         width: 22px;
         height: 22px;
         flex: none;
         transform: translateY(2px);
       }
-
       .mark span {
         font-family: var(--font-serif);
         font-size: 21px;
         font-weight: 600;
         letter-spacing: -0.01em;
       }
-
       .masthead p {
         margin: 0;
         font-size: var(--fs-small);
         color: var(--ink-soft);
       }
 
-      /* ---------- Intro ---------- */
-
       .intro {
         grid-area: intro;
-        padding: 6px 0 18px;
+        padding: 4px 0 16px;
       }
-
       .intro h1 {
         font-family: var(--font-serif);
         font-weight: 400;
-        font-size: var(--fs-title);
-        line-height: 1.22;
-        letter-spacing: -0.015em;
-        margin: 0 0 16px;
-        max-width: 20ch;
+        font-size: 27px;
+        line-height: 1.28;
+        letter-spacing: -0.01em;
+        margin: 0 0 8px;
+        max-width: 48ch;
       }
-
       .intro p {
-        font-size: var(--fs-lead);
-        line-height: 1.65;
+        font-size: 13.5px;
+        line-height: 1.55;
         color: var(--ink-soft);
-        max-width: 54ch;
+        max-width: 72ch;
         margin: 0;
       }
-
-      /* ---------- Step cards ---------- */
 
       .step {
         background: var(--surface);
@@ -153,19 +128,15 @@
         min-width: 0;
         overflow: hidden;
       }
-
-      #stepUpload {
-        grid-area: upload;
+      #stepCapture {
+        grid-area: capture;
       }
-
       #stepEdit {
         grid-area: edit;
       }
-
       #stepExport {
         grid-area: export;
       }
-
       .step-number {
         font-family: var(--font-mono);
         font-size: var(--fs-small);
@@ -175,11 +146,9 @@
         margin-bottom: 10px;
         flex: none;
       }
-
       .step.is-active .step-number {
         color: var(--accent);
       }
-
       .step-body {
         display: flex;
         flex-direction: column;
@@ -187,7 +156,6 @@
         min-width: 0;
         flex: 1;
       }
-
       .step-body h2 {
         font-family: var(--font-sans);
         font-size: var(--fs-heading);
@@ -196,7 +164,6 @@
         letter-spacing: -0.01em;
         flex: none;
       }
-
       .step-body > p {
         font-size: var(--fs-body);
         color: var(--ink-soft);
@@ -205,92 +172,234 @@
         flex: none;
       }
 
-      /* ---------- Upload ---------- */
-
-      .dropzone {
-        position: relative;
-        border: 1px dashed #c7c3b8;
-        border-radius: 3px;
-        background: #fbfaf7;
-        padding: 16px 18px;
-        transition:
-          border-color 0.15s ease,
-          background 0.15s ease;
-        flex: none;
-      }
-
-      .dropzone:hover {
-        border-color: var(--accent);
-        background: var(--accent-soft);
-      }
-
-      .dropzone input[type="file"] {
-        position: absolute;
-        inset: 0;
-        opacity: 0;
-        cursor: pointer;
-        width: 100%;
-        height: 100%;
-      }
-
-      .dropzone-row {
+      .controls-row {
         display: flex;
         align-items: center;
-        gap: 14px;
-        pointer-events: none;
-      }
-
-      .dropzone-row svg {
+        gap: 12px;
         flex: none;
-        width: 20px;
-        height: 20px;
-        color: var(--accent);
+        margin-bottom: 10px;
+        flex-wrap: wrap;
       }
-
-      .dropzone-row .label {
-        font-size: var(--fs-body);
+      .mode-toggle {
+        display: inline-flex;
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        overflow: hidden;
+        flex: none;
       }
-
-      .dropzone-row .label strong {
-        font-weight: 500;
+      .mode-toggle button {
+        background: var(--surface);
+        color: var(--ink-soft);
+        border: none;
+        border-radius: 0;
+        padding: 7px 14px;
+        font-size: 12.5px;
+      }
+      .mode-toggle button:hover:not(:disabled) {
+        background: #fbfaf7;
+      }
+      .mode-toggle button.active {
+        background: var(--ink);
+        color: var(--surface);
+      }
+      .mode-toggle button + button {
+        border-left: 1px solid var(--line);
+      }
+      .interval-row {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: var(--ink-soft);
+      }
+      .interval-row.active {
+        display: flex;
+      }
+      .interval-row select {
+        font-family: inherit;
+        font-size: 12px;
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        padding: 4px 6px;
+        background: var(--surface);
         color: var(--ink);
       }
 
-      .dropzone-row .label span {
-        color: var(--ink-soft);
+      .camera-frame {
+        position: relative;
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        background: #0f0f0d;
+        overflow: hidden;
+        display: none;
+        flex: 1;
+        min-height: 0;
+      }
+      .camera-frame.active {
+        display: block;
+      }
+      .camera-frame video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .start-camera-wrap {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px dashed #c7c3b8;
+        border-radius: 3px;
+        background: #fbfaf7;
+      }
+      .start-camera-wrap.hidden {
+        display: none;
+      }
+      .shutter-row {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 12px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 14px;
+      }
+      .shutter-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #fff;
+        border: 3px solid rgba(255, 255, 255, 0.55);
+        padding: 0;
+        cursor: pointer;
+        transition: transform 0.1s ease;
+      }
+      .shutter-btn:active {
+        transform: scale(0.92);
+      }
+      .record-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--error);
+        border: 3px solid rgba(255, 255, 255, 0.55);
+        padding: 0;
+        cursor: pointer;
+        transition:
+          border-radius 0.15s ease,
+          transform 0.1s ease;
+      }
+      .record-btn:active {
+        transform: scale(0.92);
+      }
+      .record-btn.recording {
+        border-radius: 8px;
+        width: 38px;
+        height: 38px;
+      }
+      .pause-btn {
+        display: none;
+        background: rgba(255, 255, 255, 0.9);
+        color: var(--ink);
+        border: none;
+        border-radius: 3px;
+        font-size: 12.5px;
+        padding: 9px 14px;
+      }
+      .pause-btn.active {
+        display: inline-block;
+      }
+      .pause-btn:hover {
+        background: #fff;
+      }
+      .stop-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(28, 27, 24, 0.55);
+        color: #fff;
+        border: none;
+        border-radius: 3px;
+        font-size: 12px;
+        padding: 6px 10px;
+      }
+      .stop-btn:hover {
+        background: rgba(28, 27, 24, 0.75);
+      }
+      .rec-indicator {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        display: none;
+        align-items: center;
+        gap: 6px;
+        background: rgba(28, 27, 24, 0.55);
+        color: #fff;
+        border-radius: 3px;
+        padding: 5px 9px;
+        font-family: var(--font-mono);
+        font-size: 11.5px;
+      }
+      .rec-indicator.active {
+        display: flex;
+      }
+      .rec-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--error);
+        animation: pulse 1s ease-in-out infinite;
+      }
+      .rec-indicator.paused .rec-dot {
+        background: var(--ink-soft);
+        animation: none;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+      .camera-error {
+        display: none;
+        font-size: 12.5px;
+        color: var(--error);
+        margin-top: 8px;
+        flex: none;
       }
 
       #preview {
-        margin-top: 12px;
-        flex: 1;
-        min-height: 0;
+        margin-top: 10px;
+        flex: none;
+        height: 104px;
         overflow-x: auto;
         overflow-y: hidden;
         display: flex;
         flex-wrap: nowrap;
         align-items: center;
         gap: 10px;
-        padding: 12px;
+        padding: 10px;
         border: 1px solid var(--line);
         border-radius: 3px;
         background: #fbfaf7;
       }
-
       #preview:empty::before {
-        content: "Image previews will appear here.";
+        content: "Captured frames will appear here.";
         font-size: var(--fs-small);
         color: #a9a69c;
       }
-
-      /* Thumbnail + remove (X) button — identical to camera.html */
-
       .thumb {
         position: relative;
         flex: 0 0 auto;
         width: 84px;
         height: 84px;
       }
-
       .thumb img {
         width: 100%;
         height: 100%;
@@ -299,7 +408,6 @@
         border: 1px solid var(--line);
         display: block;
       }
-
       .thumb button {
         position: absolute;
         top: -6px;
@@ -318,8 +426,6 @@
         background: #86331f;
       }
 
-      /* ---------- Buttons ---------- */
-
       button {
         font-family: var(--font-sans);
         font-size: var(--fs-body);
@@ -334,34 +440,38 @@
         background: var(--ink);
         transition: background 0.15s ease;
       }
-
       button:hover:not(:disabled) {
         background: #35342f;
       }
-
       button:disabled {
         cursor: not-allowed;
         opacity: 0.55;
       }
-
       button.primary {
         background: var(--accent);
       }
       button.primary:hover:not(:disabled) {
         background: #253d31;
       }
-
+      button.ghost {
+        background: transparent;
+        color: var(--ink);
+        border: 1px solid var(--line);
+        padding: 10px 17px;
+      }
+      button.ghost:hover:not(:disabled) {
+        border-color: #c7c3b8;
+        background: var(--surface);
+      }
       .btn-row {
         display: flex;
         gap: 10px;
-        margin-top: 12px;
+        margin-top: 10px;
         flex: none;
       }
-
       .btn-row button {
         flex: 1;
       }
-
       .button-spinner {
         display: none;
         width: 13px;
@@ -372,19 +482,15 @@
         animation: spin 0.7s linear infinite;
         margin-right: 8px;
       }
-
       button.is-loading .button-spinner {
         display: inline-block;
         vertical-align: -2px;
       }
-
       @keyframes spin {
         to {
           transform: rotate(360deg);
         }
       }
-
-      /* ---------- Review card ---------- */
 
       textarea {
         flex: 1;
@@ -400,36 +506,27 @@
         line-height: 1.7;
         color: var(--ink);
       }
-
       textarea::placeholder {
         color: #a9a69c;
       }
-
       textarea:focus {
         outline: none;
         border-color: var(--accent);
       }
-
       textarea:disabled {
         color: #a9a69c;
         background: #fafaf8;
       }
 
-      /* ---------- Export card ---------- */
-
       #stepExport .step-body {
         flex: none;
       }
-
       #stepExport .step-body > p {
         margin-bottom: 0;
       }
-
       #stepExport .btn-row {
         margin-top: 12px;
       }
-
-      /* ---------- Status ---------- */
 
       .status-line {
         margin-top: 10px;
@@ -440,7 +537,6 @@
         min-height: 16px;
         flex: none;
       }
-
       .status-dot {
         width: 6px;
         height: 6px;
@@ -448,22 +544,18 @@
         background: var(--ink-soft);
         flex: none;
       }
-
       .status-line.ok {
         color: var(--accent);
       }
       .status-line.ok .status-dot {
         background: var(--accent);
       }
-
       .status-line.error {
         color: var(--error);
       }
       .status-line.error .status-dot {
         background: var(--error);
       }
-
-      /* ---------- Footer ---------- */
 
       .foot {
         grid-area: foot;
@@ -473,97 +565,70 @@
         text-align: center;
       }
 
-      /* ---------- Small screens (original single-column rules) ---------- */
-
+      /* ---------- Original small-screen rules (unchanged) ---------- */
       @media (max-width: 860px) {
         :root {
           --gutter: 16px;
           --fs-title: 22px;
           --fs-lead: 13.5px;
         }
-
         .page {
           padding-top: 14px;
           padding-bottom: 10px;
           row-gap: 10px;
           grid-template-columns: minmax(0, 1fr);
           grid-template-rows: auto auto auto minmax(0, 1fr) auto auto;
-          grid-template-areas:
-            "masthead"
-            "intro"
-            "upload"
-            "edit"
-            "export"
-            "foot";
+          grid-template-areas: "masthead" "intro" "capture" "edit" "export" "foot";
         }
-
         .masthead {
           padding-bottom: 10px;
           margin-bottom: 0;
         }
-
         .masthead p {
           display: none;
         }
-
         .intro {
-          padding: 0;
+          padding: 0 0 6px;
         }
-
+        .intro h1 {
+          font-size: 20px;
+        }
         .intro h1 {
           margin-bottom: 0;
           max-width: none;
         }
-
         .intro p {
           display: none;
         }
-
         .step {
           padding: 12px 14px;
         }
-
         .step-number {
           margin-bottom: 6px;
         }
-
         .step-body > p {
           display: none;
         }
-
-        .dropzone {
-          padding: 12px 14px;
-        }
-
         #preview {
-          flex: none;
-          flex-wrap: nowrap;
-          overflow-x: auto;
-          overflow-y: hidden;
-          padding: 8px;
+          height: 60px;
+          padding: 6px;
         }
-
-        #preview:empty {
-          display: none;
+        .thumb {
+          width: 46px;
+          height: 46px;
         }
-
         .btn-row {
           margin-top: 8px;
         }
-
         button {
           padding: 9px 14px;
         }
-
         .foot {
           font-size: 11.5px;
         }
       }
 
-      /* ---------- MOBILE ONLY: scrolling page, touch-friendly ----------
-         Everything below only applies at phone/tablet-portrait widths.
-         Desktop (>860px) is untouched. */
-
+      /* ---------- MOBILE ONLY: scrolling page, touch-friendly (desktop untouched) ---------- */
       @media (max-width: 860px) {
         html,
         body {
@@ -572,88 +637,124 @@
           overflow-x: hidden;
           overflow-y: auto;
         }
-
         .page {
           height: auto;
           min-height: 100vh;
           grid-template-rows: none;
           grid-auto-rows: auto;
+          row-gap: 14px;
           padding-top: max(14px, env(safe-area-inset-top));
           padding-bottom: max(16px, env(safe-area-inset-bottom));
-          row-gap: 14px;
         }
-
         .masthead {
           flex-wrap: wrap;
           gap: 4px 12px;
           padding-bottom: 12px;
         }
-
         .mark span {
           font-size: 19px;
         }
-
+        .intro {
+          padding: 0;
+        }
         .intro h1 {
           font-size: 24px;
           line-height: 1.25;
           margin-bottom: 8px;
         }
-
         .intro p {
           display: block;
           font-size: 14px;
           line-height: 1.55;
         }
-
         .step {
           padding: 16px;
           overflow: visible;
         }
-
         .step-body > p {
           display: block;
-          font-size: 13.5px;
         }
-
         .step-body h2 {
           font-size: 16px;
         }
 
-        .dropzone {
-          padding: 22px 16px;
-          min-height: 76px;
-          display: flex;
-          align-items: center;
+        .controls-row {
+          gap: 10px 14px;
         }
-
-        .dropzone-row {
-          width: 100%;
-        }
-
-        .dropzone-row svg {
-          width: 24px;
-          height: 24px;
-        }
-
-        .dropzone-row .label {
+        .mode-toggle button {
+          min-height: 42px;
+          padding: 10px 20px;
           font-size: 14px;
+        }
+        .interval-row {
+          font-size: 13px;
+        }
+        .interval-row select {
+          min-height: 40px;
+          font-size: 14px;
+          padding: 6px 10px;
+        }
+
+        /* camera: sized by aspect ratio, never taller than the screen */
+        .start-camera-wrap {
+          flex: none;
+          min-height: 150px;
+        }
+        .camera-frame {
+          flex: none;
+          width: 100%;
+          max-width: 480px;
+          margin: 0 auto;
+          aspect-ratio: 3 / 4;
+          max-height: 68vh;
+          min-height: 0;
+        }
+        .camera-frame video {
+          position: absolute;
+          inset: 0;
+        }
+        .shutter-row {
+          bottom: 14px;
+          gap: 16px;
+        }
+        .shutter-btn,
+        .record-btn {
+          width: 60px;
+          height: 60px;
+        }
+        .record-btn.recording {
+          width: 46px;
+          height: 46px;
+        }
+        .pause-btn {
+          min-height: 44px;
+          padding: 10px 16px;
+          font-size: 14px;
+        }
+        .stop-btn {
+          min-height: 40px;
+          padding: 8px 14px;
+          font-size: 13px;
+        }
+        .rec-indicator {
+          font-size: 12px;
+          padding: 6px 10px;
+        }
+        .camera-error {
+          font-size: 13px;
           line-height: 1.4;
-          min-width: 0;
-          overflow-wrap: anywhere;
         }
 
         #preview {
-          padding: 12px;
+          height: auto;
           min-height: 108px;
+          padding: 12px;
           -webkit-overflow-scrolling: touch;
         }
-
         .thumb {
           width: 84px;
           height: 84px;
         }
-
-        /* larger tap target, same look as desktop */
         .thumb button {
           top: -9px;
           right: -9px;
@@ -665,17 +766,14 @@
         .btn-row {
           margin-top: 12px;
         }
-
         button {
           min-height: 46px;
           font-size: 14.5px;
           padding: 12px 16px;
         }
-
         button.ghost {
           padding: 12px 16px;
         }
-
         textarea {
           flex: none;
           min-height: 260px;
@@ -689,54 +787,50 @@
           overflow-wrap: anywhere;
           word-break: break-word;
         }
-
         .status-line {
           font-size: 13px;
           line-height: 1.4;
           align-items: flex-start;
           overflow-wrap: anywhere;
         }
-
         .status-dot {
           margin-top: 5px;
         }
-
         .foot {
           font-size: 12px;
           padding-bottom: 4px;
         }
       }
-
       @media (max-width: 480px) {
         .btn-row {
           flex-direction: column;
         }
-
         .intro h1 {
           font-size: 22px;
         }
-
         .step {
           padding: 14px;
         }
+        .camera-frame {
+          max-height: 62vh;
+        }
       }
-
       @media (max-width: 360px) {
         :root {
           --gutter: 12px;
         }
-
         .mark span {
           font-size: 17px;
         }
-
         .intro h1 {
           font-size: 20px;
         }
-
         .thumb {
           width: 72px;
           height: 72px;
+        }
+        .mode-toggle button {
+          padding: 10px 16px;
         }
       }
 
@@ -938,10 +1032,10 @@
           </svg>
         </button>
         <nav class="nav-links" id="navLinks" aria-label="Main">
-          <a href="/test" aria-current="page"
+          <a href="/test"
             >Upload photos<small>Choose images from this device</small></a
           >
-          <a href="/camera"
+          <a href="/camera" aria-current="page"
             >Device Camera<small>Use this phone or laptop's camera</small></a
           >
           <a href="/#capture" id="navCapture"
@@ -953,51 +1047,86 @@
       </header>
 
       <section class="intro">
-        <h1>Turn a stack of photos into a document you can edit.</h1>
+        <h1>Shoot pages with your camera, then turn them into a document.</h1>
         <p>
-          Upload images of a page, letter, or handwritten note.
-          Lecture-to-Document pulls out the text, lets you fix anything it
-          missed, then hands you back a clean DOCX or PDF.
+          Works right here in the browser — no app, no device pairing. Snap
+          single pages, or record while you flip through several.
         </p>
       </section>
 
-      <div class="step is-active" id="stepUpload">
+      <div class="step is-active" id="stepCapture">
         <div class="step-number">01</div>
         <div class="step-body">
-          <h2>Add your images</h2>
-          <p>
-            JPG or PNG, as many as you need. They're read in the order you
-            select them.
-          </p>
+          <h2>Take photos or record</h2>
+          <p>Use your phone or laptop camera.</p>
 
-          <div class="dropzone">
-            <input type="file" id="images" multiple accept="image/*" />
-            <div class="dropzone-row">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
+          <div class="controls-row">
+            <div class="mode-toggle" role="tablist" aria-label="Capture mode">
+              <button
+                type="button"
+                id="photoModeBtn"
+                class="active"
+                role="tab"
+                aria-selected="true"
               >
-                <path
-                  d="M12 16V4M12 4L7 9M12 4L17 9"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <path
-                  d="M4 16V18C4 19.1046 4.89543 20 6 20H18C19.1046 20 20 19.1046 20 18V16"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                />
-              </svg>
-              <div class="label">
-                <strong>Choose files</strong>
-                <span id="fileCountLabel">— or drop them here</span>
-              </div>
+                Photo
+              </button>
+              <button
+                type="button"
+                id="videoModeBtn"
+                role="tab"
+                aria-selected="false"
+              >
+                Video
+              </button>
+            </div>
+            <div class="interval-row" id="intervalRow">
+              <label for="intervalSelect">Frame every</label>
+              <select id="intervalSelect">
+                <option value="800">0.8s</option>
+                <option value="1200" selected>1.2s</option>
+                <option value="2000">2s</option>
+                <option value="3000">3s</option>
+              </select>
             </div>
           </div>
+
+          <div class="start-camera-wrap" id="startCameraWrap">
+            <button id="startCameraBtn">
+              <span class="button-spinner" id="startSpinner"></span>Open camera
+            </button>
+          </div>
+
+          <div class="camera-frame" id="cameraFrame">
+            <video id="video" autoplay playsinline muted></video>
+            <button class="stop-btn" id="stopCameraBtn" type="button">
+              Close camera
+            </button>
+            <div class="rec-indicator" id="recIndicator">
+              <span class="rec-dot"></span><span id="recTimer">0:00</span> ·
+              <span id="recFrameCount">0 frames</span>
+            </div>
+            <div class="shutter-row">
+              <button
+                class="shutter-btn"
+                id="shutterBtn"
+                type="button"
+                aria-label="Take photo"
+              ></button>
+              <button
+                class="record-btn"
+                id="recordBtn"
+                type="button"
+                aria-label="Start recording"
+                style="display: none"
+              ></button>
+              <button class="pause-btn" id="pauseBtn" type="button">
+                Pause
+              </button>
+            </div>
+          </div>
+
+          <p class="camera-error" id="cameraError"></p>
 
           <div id="preview"></div>
 
@@ -1015,7 +1144,6 @@
         <div class="step-body">
           <h2>Review the text</h2>
           <p>Fix anything the extraction got wrong before you export.</p>
-
           <textarea
             id="docPreview"
             placeholder="Extracted text will appear here once you run step one."
@@ -1028,50 +1156,81 @@
         <div class="step-number">03</div>
         <div class="step-body">
           <h2>Export</h2>
-          <p>Download your document as a DOCX or PDF.</p>
-
+          <p>Generate a document, then save it to your device.</p>
           <div class="btn-row">
-            <button id="downloadDocxBtn" class="primary" disabled>
+            <button id="generateDocxBtn" class="ghost" disabled>
               <span class="button-spinner"></span
-              ><span class="btn-label">Download DOCX</span>
+              ><span class="btn-label">Generate DOCX</span>
             </button>
-            <button id="downloadPdfBtn" class="primary" disabled>
+            <button id="generatePdfBtn" class="ghost" disabled>
               <span class="button-spinner"></span
-              ><span class="btn-label">Download PDF</span>
+              ><span class="btn-label">Generate PDF</span>
             </button>
           </div>
-
+          <div class="btn-row">
+            <button id="downloadBtn" class="primary" style="display: none">
+              Download file
+            </button>
+          </div>
           <div class="status-line" id="fileStatus"></div>
         </div>
       </div>
 
       <p class="foot">
-        Files are processed for this session only and aren't stored.
+        Photos stay in your browser and are only sent when you extract text.
       </p>
     </div>
 
+    <canvas id="captureCanvas" style="display: none"></canvas>
+
     <script>
-      // --- Get device_id from the URL ---
-      const pathParts = window.location.pathname.split("/").filter((p) => p);
-      const DEVICE_ID = pathParts[0] || "default_device";
+      const DEVICE_ID = "camera";
       const API_URL = `${window.location.origin}/${DEVICE_ID}`;
 
-      const imagesInput = document.getElementById("images");
+      const startCameraWrap = document.getElementById("startCameraWrap");
+      const startCameraBtn = document.getElementById("startCameraBtn");
+      const stopCameraBtn = document.getElementById("stopCameraBtn");
+      const shutterBtn = document.getElementById("shutterBtn");
+      const recordBtn = document.getElementById("recordBtn");
+      const pauseBtn = document.getElementById("pauseBtn");
+      const cameraFrame = document.getElementById("cameraFrame");
+      const cameraError = document.getElementById("cameraError");
+      const video = document.getElementById("video");
+      const canvas = document.getElementById("captureCanvas");
+
+      const photoModeBtn = document.getElementById("photoModeBtn");
+      const videoModeBtn = document.getElementById("videoModeBtn");
+      const intervalRow = document.getElementById("intervalRow");
+      const intervalSelect = document.getElementById("intervalSelect");
+      const recIndicator = document.getElementById("recIndicator");
+      const recTimer = document.getElementById("recTimer");
+      const recFrameCount = document.getElementById("recFrameCount");
+
       const previewDiv = document.getElementById("preview");
-      const fileCountLabel = document.getElementById("fileCountLabel");
       const extractBtn = document.getElementById("extractBtn");
       const docPreview = document.getElementById("docPreview");
 
-      const downloadDocxBtn = document.getElementById("downloadDocxBtn");
-      const downloadPdfBtn = document.getElementById("downloadPdfBtn");
+      const generateDocxBtn = document.getElementById("generateDocxBtn");
+      const generatePdfBtn = document.getElementById("generatePdfBtn");
+      const downloadBtn = document.getElementById("downloadBtn");
       const fileStatus = document.getElementById("fileStatus");
 
       const stepEdit = document.getElementById("stepEdit");
       const stepExport = document.getElementById("stepExport");
 
-      // Currently selected files (source of truth for preview + extraction).
-      // Each entry: { file, url }
-      let selected = [];
+      let stream = null;
+      let photos = []; // { blob, url }
+      let lastGeneratedBlob = null;
+      let lastFileType = "";
+
+      let mode = "photo"; // "photo" | "video"
+      let isRecording = false;
+      let isPaused = false;
+      let recordIntervalId = null;
+      let recordTimerId = null;
+      let segmentStartedAt = 0;
+      let pausedElapsedMs = 0;
+      let framesThisSession = 0;
 
       function setStatus(text, kind) {
         fileStatus.className = "status-line" + (kind ? " " + kind : "");
@@ -1083,81 +1242,225 @@
       function setLoading(btn, loading, label) {
         btn.disabled = loading;
         btn.classList.toggle("is-loading", loading);
-        btn.querySelector(".btn-label").textContent = label;
+        const labelEl = btn.querySelector(".btn-label");
+        if (labelEl) labelEl.textContent = label;
       }
 
-      // Keep the <input>'s FileList in sync with `selected`
-      function syncInput() {
+      function refreshExtractState() {
+        extractBtn.disabled = photos.filter(Boolean).length === 0;
+      }
+
+      function setMode(next) {
+        if (isRecording) stopRecording();
+        mode = next;
+
+        const isVideo = mode === "video";
+        photoModeBtn.classList.toggle("active", !isVideo);
+        photoModeBtn.setAttribute("aria-selected", String(!isVideo));
+        videoModeBtn.classList.toggle("active", isVideo);
+        videoModeBtn.setAttribute("aria-selected", String(isVideo));
+        intervalRow.classList.toggle("active", isVideo);
+        shutterBtn.style.display = isVideo ? "none" : "inline-block";
+        recordBtn.style.display = isVideo ? "inline-block" : "none";
+      }
+
+      photoModeBtn.addEventListener("click", () => setMode("photo"));
+      videoModeBtn.addEventListener("click", () => setMode("video"));
+
+      startCameraBtn.addEventListener("click", async () => {
+        cameraError.style.display = "none";
+        setLoading(startCameraBtn, true, "Opening…");
+
         try {
-          const dt = new DataTransfer();
-          selected.forEach((s) => dt.items.add(s.file));
-          imagesInput.files = dt.files;
-        } catch {
-          /* older browsers: `selected` is still used for extraction */
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { ideal: "environment" } },
+            audio: false,
+          });
+          video.srcObject = stream;
+          cameraFrame.classList.add("active");
+          startCameraWrap.classList.add("hidden");
+        } catch (err) {
+          console.error(err);
+          cameraError.textContent =
+            "Couldn't access the camera. Check your browser's camera permission and try again.";
+          cameraError.style.display = "block";
+        } finally {
+          setLoading(startCameraBtn, false, "Open camera");
         }
-        if (selected.length === 0) imagesInput.value = "";
+      });
+
+      function stopCamera() {
+        if (isRecording) stopRecording();
+        if (stream) {
+          stream.getTracks().forEach((t) => t.stop());
+          stream = null;
+        }
+        cameraFrame.classList.remove("active");
+        startCameraWrap.classList.remove("hidden");
       }
 
-      function refreshUploadState() {
-        const n = selected.length;
-        extractBtn.disabled = n === 0;
-        fileCountLabel.textContent =
-          n === 0
-            ? "— or drop them here"
-            : `${n} file${n > 1 ? "s" : ""} selected`;
+      stopCameraBtn.addEventListener("click", stopCamera);
+
+      function captureFrame() {
+        if (!stream) return;
+        const w = video.videoWidth;
+        const h = video.videoHeight;
+        if (!w || !h) return;
+
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext("2d").drawImage(video, 0, 0, w, h);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) return;
+            const url = URL.createObjectURL(blob);
+            photos.push({ blob, url });
+            renderThumb(photos.length - 1, url);
+            refreshExtractState();
+            framesThisSession++;
+            recFrameCount.textContent = `${framesThisSession} frame${framesThisSession === 1 ? "" : "s"}`;
+          },
+          "image/jpeg",
+          0.92,
+        );
       }
 
-      function renderThumb(entry) {
+      shutterBtn.addEventListener("click", captureFrame);
+
+      function updateRecTimerDisplay() {
+        const elapsedMs =
+          pausedElapsedMs + (isPaused ? 0 : Date.now() - segmentStartedAt);
+        const elapsed = Math.floor(elapsedMs / 1000);
+        const mins = Math.floor(elapsed / 60);
+        const secs = String(elapsed % 60).padStart(2, "0");
+        recTimer.textContent = `${mins}:${secs}`;
+      }
+
+      function startRecording() {
+        if (!stream || isRecording) return;
+        isRecording = true;
+        isPaused = false;
+        framesThisSession = 0;
+        pausedElapsedMs = 0;
+        recFrameCount.textContent = "0 frames";
+
+        recordBtn.classList.add("recording");
+        recordBtn.setAttribute("aria-label", "Stop recording");
+        recIndicator.classList.add("active");
+        recIndicator.classList.remove("paused");
+        pauseBtn.classList.add("active");
+        pauseBtn.textContent = "Pause";
+        intervalSelect.disabled = true;
+
+        segmentStartedAt = Date.now();
+        captureFrame();
+
+        const intervalMs = Number(intervalSelect.value) || 1200;
+        recordIntervalId = setInterval(captureFrame, intervalMs);
+        recordTimerId = setInterval(updateRecTimerDisplay, 250);
+      }
+
+      function pauseRecording() {
+        if (!isRecording || isPaused) return;
+        isPaused = true;
+        pausedElapsedMs += Date.now() - segmentStartedAt;
+
+        clearInterval(recordIntervalId);
+        clearInterval(recordTimerId);
+        recordIntervalId = null;
+        recordTimerId = null;
+
+        recIndicator.classList.add("paused");
+        pauseBtn.textContent = "Resume";
+      }
+
+      function resumeRecording() {
+        if (!isRecording || !isPaused) return;
+        isPaused = false;
+        segmentStartedAt = Date.now();
+
+        const intervalMs = Number(intervalSelect.value) || 1200;
+        captureFrame();
+        recordIntervalId = setInterval(captureFrame, intervalMs);
+        recordTimerId = setInterval(updateRecTimerDisplay, 250);
+
+        recIndicator.classList.remove("paused");
+        pauseBtn.textContent = "Pause";
+      }
+
+      function stopRecording() {
+        if (!isRecording) return;
+        isRecording = false;
+        isPaused = false;
+
+        clearInterval(recordIntervalId);
+        clearInterval(recordTimerId);
+        recordIntervalId = null;
+        recordTimerId = null;
+
+        recordBtn.classList.remove("recording");
+        recordBtn.setAttribute("aria-label", "Start recording");
+        recIndicator.classList.remove("active", "paused");
+        pauseBtn.classList.remove("active");
+        recTimer.textContent = "0:00";
+        intervalSelect.disabled = false;
+      }
+
+      recordBtn.addEventListener("click", () => {
+        if (isRecording) stopRecording();
+        else startRecording();
+      });
+
+      pauseBtn.addEventListener("click", () => {
+        if (isPaused) resumeRecording();
+        else pauseRecording();
+      });
+
+      function renderThumb(index, url) {
         const thumb = document.createElement("div");
         thumb.className = "thumb";
+        thumb.dataset.index = index;
 
         const img = document.createElement("img");
-        img.src = entry.url;
+        img.src = url;
 
         const removeBtn = document.createElement("button");
         removeBtn.type = "button";
         removeBtn.textContent = "×";
         removeBtn.setAttribute("aria-label", "Remove photo");
-        removeBtn.addEventListener("click", () => removePhoto(entry, thumb));
+        removeBtn.addEventListener("click", () => removePhoto(thumb));
 
         thumb.appendChild(img);
         thumb.appendChild(removeBtn);
         previewDiv.appendChild(thumb);
       }
 
-      function removePhoto(entry, thumbEl) {
-        URL.revokeObjectURL(entry.url);
-        selected = selected.filter((s) => s !== entry);
+      function removePhoto(thumbEl) {
+        const index = Number(thumbEl.dataset.index);
+        const photo = photos[index];
+        if (photo) URL.revokeObjectURL(photo.url);
+        photos[index] = null;
         thumbEl.remove();
-        syncInput();
-        refreshUploadState();
+        refreshExtractState();
       }
 
-      // --- Preview images ---
-      imagesInput.addEventListener("change", () => {
-        selected.forEach((s) => URL.revokeObjectURL(s.url));
-        previewDiv.innerHTML = "";
-        selected = Array.from(imagesInput.files).map((file) => ({
-          file,
-          url: URL.createObjectURL(file),
-        }));
-
-        selected.forEach(renderThumb);
-        refreshUploadState();
-        if (selected.length > 0) setStatus("", null);
-      });
-
-      // --- Extract text ---
       extractBtn.addEventListener("click", async () => {
-        if (selected.length === 0) {
-          setStatus("Select at least one image first.", "error");
+        const remaining = photos.filter(Boolean);
+        if (remaining.length === 0) {
+          setStatus("Capture at least one frame first.", "error");
           return;
         }
 
         setLoading(extractBtn, true, "Extracting…");
 
         const formData = new FormData();
-        selected.forEach((s) => formData.append("files", s.file));
+        remaining.forEach((p, i) => {
+          formData.append(
+            "files",
+            new File([p.blob], `page-${i + 1}.jpg`, { type: "image/jpeg" }),
+          );
+        });
 
         try {
           const response = await fetch(`${API_URL}/extract_text`, {
@@ -1168,36 +1471,30 @@
             const data = await response.json();
             docPreview.disabled = false;
             docPreview.value = data.preview_text;
-            downloadDocxBtn.disabled = false;
-            downloadPdfBtn.disabled = false;
+            generateDocxBtn.disabled = false;
+            generatePdfBtn.disabled = false;
             stepEdit.classList.add("is-active");
             stepExport.classList.add("is-active");
-            setStatus("Text extracted. Edit it, then download below.", "ok");
+            setStatus("Text extracted. Edit it, then export below.", "ok");
           } else {
-            setStatus("Couldn't extract text from those images.", "error");
+            setStatus("Couldn't extract text from those frames.", "error");
           }
         } catch {
           setStatus("Couldn't reach the server.", "error");
         } finally {
           setLoading(extractBtn, false, "Extract text");
-          extractBtn.disabled = selected.length === 0;
         }
       });
 
-      // --- Generate and download directly ---
-      async function downloadFile(type) {
+      async function generateFile(type) {
         const text = docPreview.value.trim();
         if (!text) {
           setStatus("There's no text to export yet.", "error");
           return;
         }
 
-        const btn = type === "docx" ? downloadDocxBtn : downloadPdfBtn;
-        const otherBtn = type === "docx" ? downloadPdfBtn : downloadDocxBtn;
-        const label = type === "docx" ? "Download DOCX" : "Download PDF";
-
-        setLoading(btn, true, `Preparing ${type.toUpperCase()}…`);
-        otherBtn.disabled = true;
+        const btn = type === "docx" ? generateDocxBtn : generatePdfBtn;
+        setLoading(btn, true, `Generating ${type.toUpperCase()}…`);
 
         const formData = new FormData();
         formData.append("text", text);
@@ -1209,29 +1506,42 @@
               : `${API_URL}/generate_pdf`;
           const response = await fetch(url, { method: "POST", body: formData });
           if (response.ok) {
-            const blob = await response.blob();
-            const objectUrl = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = objectUrl;
-            a.download = `extracted_text.${type}`;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(objectUrl);
-            setStatus(`${type.toUpperCase()} downloaded.`, "ok");
+            lastGeneratedBlob = await response.blob();
+            lastFileType = type;
+            downloadBtn.textContent = `Download ${type.toUpperCase()}`;
+            downloadBtn.style.display = "inline-flex";
+            setStatus(`${type.toUpperCase()} ready. Download it below.`, "ok");
           } else {
             setStatus(`Couldn't generate the ${type.toUpperCase()}.`, "error");
           }
         } catch {
           setStatus("Couldn't reach the server.", "error");
         } finally {
-          setLoading(btn, false, label);
-          otherBtn.disabled = false;
+          setLoading(
+            btn,
+            false,
+            type === "docx" ? "Generate DOCX" : "Generate PDF",
+          );
         }
       }
 
-      downloadDocxBtn.addEventListener("click", () => downloadFile("docx"));
-      downloadPdfBtn.addEventListener("click", () => downloadFile("pdf"));
+      generateDocxBtn.addEventListener("click", () => generateFile("docx"));
+      generatePdfBtn.addEventListener("click", () => generateFile("pdf"));
+
+      downloadBtn.addEventListener("click", () => {
+        if (!lastGeneratedBlob) return;
+        const url = window.URL.createObjectURL(lastGeneratedBlob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `extracted_text.${lastFileType}`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        setStatus(`Downloaded ${lastFileType.toUpperCase()}.`, "ok");
+      });
+
+      window.addEventListener("beforeunload", stopCamera);
 
       // ---- navbar: hamburger + Raspberry Pi Capture link ----
       (function () {

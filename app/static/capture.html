@@ -21,224 +21,183 @@
         --accent-soft: #e7ede9;
         --error: #a13d2d;
         --error-soft: #f5e9e5;
+        --font-sans: "Inter", -apple-system, "Segoe UI", sans-serif;
+        --font-serif: "Source Serif 4", serif;
+        --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+        --fs-title: 36px;
+        --fs-lead: 15px;
+        --fs-heading: 15px;
+        --fs-body: 13.5px;
+        --fs-small: 12.5px;
+        --fs-mono: 12.5px;
+        --gutter: 32px;
       }
-
       * {
         box-sizing: border-box;
       }
-
       html,
       body {
         margin: 0;
         padding: 0;
+        height: 100vh;
+        overflow: hidden;
       }
-
       body {
         background: var(--paper);
         color: var(--ink);
-        font-family:
-          "Inter",
-          -apple-system,
-          "Segoe UI",
-          sans-serif;
-        min-height: 100vh;
+        font-family: var(--font-sans);
+        font-size: var(--fs-body);
         -webkit-font-smoothing: antialiased;
       }
 
       .page {
-        max-width: 760px;
+        height: 100vh;
+        width: 100%;
+        max-width: 1280px;
         margin: 0 auto;
-        padding: 72px 24px 100px;
+        padding: 24px var(--gutter) 16px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+        grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+        grid-template-areas: "masthead masthead" "intro    edit" "capture  edit" "capture  export" "foot     foot";
+        column-gap: 20px;
+        row-gap: 14px;
       }
 
-      /* ---------- Masthead ---------- */
-
       .masthead {
+        grid-area: masthead;
         display: flex;
         align-items: baseline;
         justify-content: space-between;
         border-bottom: 1px solid var(--line);
-        padding-bottom: 28px;
-        margin-bottom: 40px;
+        padding-bottom: 16px;
+        margin-bottom: 6px;
       }
-
       .mark {
         display: flex;
         align-items: baseline;
         gap: 10px;
       }
-
       .mark svg {
         width: 22px;
         height: 22px;
         flex: none;
         transform: translateY(2px);
       }
-
       .mark span {
-        font-family: "Source Serif 4", serif;
+        font-family: var(--font-serif);
         font-size: 21px;
         font-weight: 600;
         letter-spacing: -0.01em;
       }
-
       .masthead p {
         margin: 0;
-        font-size: 13px;
+        font-size: var(--fs-small);
         color: var(--ink-soft);
       }
 
-      /* ---------- Intro ---------- */
-
+      .intro {
+        grid-area: intro;
+        padding: 6px 0 18px;
+      }
       .intro h1 {
-        font-family: "Source Serif 4", serif;
+        font-family: var(--font-serif);
         font-weight: 400;
-        font-size: 32px;
-        line-height: 1.25;
-        letter-spacing: -0.01em;
-        margin: 0 0 14px;
-        max-width: 22ch;
+        font-size: var(--fs-title);
+        line-height: 1.22;
+        letter-spacing: -0.015em;
+        margin: 0 0 16px;
+        max-width: 20ch;
       }
-
       .intro p {
-        font-size: 15.5px;
-        line-height: 1.6;
+        font-size: var(--fs-lead);
+        line-height: 1.65;
         color: var(--ink-soft);
-        max-width: 48ch;
-        margin: 0 0 40px;
+        max-width: 54ch;
+        margin: 0;
       }
-
-      /* ---------- Device status panel ---------- */
-
-      .status-panel {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1px;
-        background: var(--line);
-        border: 1px solid var(--line);
-        border-radius: 3px;
-        overflow: hidden;
-        margin-bottom: 56px;
-      }
-
-      .status-cell {
-        background: var(--surface);
-        padding: 14px 16px;
-      }
-
-      .status-cell .label {
-        display: block;
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--ink-soft);
-        margin-bottom: 6px;
-      }
-
-      .status-cell .value {
-        font-family: "IBM Plex Mono", ui-monospace, monospace;
-        font-size: 13.5px;
-      }
-
-      .status-cell .value.dot::before {
-        content: "";
-        display: inline-block;
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: var(--ink-soft);
-        margin-right: 7px;
-      }
-
-      .status-cell .value.dot.on::before {
-        background: var(--accent);
-      }
-
-      /* ---------- Steps ---------- */
 
       .step {
-        display: grid;
-        grid-template-columns: 44px 1fr;
-        gap: 24px;
-        padding: 36px 0;
-        border-top: 1px solid var(--line);
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        padding: 18px 22px;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        min-width: 0;
+        overflow: hidden;
       }
-
-      .step:last-of-type {
-        border-bottom: 1px solid var(--line);
+      #stepCapture {
+        grid-area: capture;
       }
-
+      #stepEdit {
+        grid-area: edit;
+      }
+      #stepExport {
+        grid-area: export;
+      }
       .step-number {
-        font-family: "Source Serif 4", serif;
-        font-size: 26px;
+        font-family: var(--font-mono);
+        font-size: var(--fs-small);
         color: var(--ink-soft);
+        letter-spacing: 0.04em;
         line-height: 1;
-        padding-top: 2px;
+        margin-bottom: 10px;
+        flex: none;
       }
-
+      .step.is-active .step-number {
+        color: var(--accent);
+      }
+      .step-body {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        min-width: 0;
+        flex: 1;
+      }
       .step-body h2 {
-        font-size: 15px;
+        font-family: var(--font-sans);
+        font-size: var(--fs-heading);
         font-weight: 600;
         margin: 0 0 4px;
         letter-spacing: -0.01em;
+        flex: none;
       }
-
       .step-body > p {
-        font-size: 13.5px;
+        font-size: var(--fs-body);
         color: var(--ink-soft);
-        margin: 0 0 20px;
+        margin: 0 0 12px;
         line-height: 1.5;
+        flex: none;
       }
-
-      .hint {
-        font-size: 12.5px;
-        color: var(--ink-soft);
-        margin-top: 10px;
-      }
-
-      /* ---------- Preview grid ---------- */
 
       #preview {
+        margin-top: 10px;
+        flex: none;
+        height: 104px;
+        overflow-x: auto;
+        overflow-y: hidden;
         display: flex;
         flex-wrap: nowrap;
-        overflow-x: auto;
-        gap: 8px;
-        padding: 12px;
-        min-height: 96px;
-        border: 1px dashed var(--line);
-        border-radius: 3px;
-        background: var(--surface);
-        margin-top: 4px;
-      }
-
-      #preview img {
-        flex: 0 0 auto;
-        width: 76px;
-        height: 76px;
-        object-fit: cover;
-        border-radius: 2px;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
         border: 1px solid var(--line);
-        cursor: pointer;
-        transition:
-          opacity 0.15s ease,
-          border-color 0.15s ease;
+        border-radius: 3px;
+        background: #fbfaf7;
       }
-
-      #preview img:hover {
-        border-color: #c7c3b8;
+      #preview:empty::before {
+        content: "Captured frames will appear here.";
+        font-size: var(--fs-small);
+        color: #a9a69c;
       }
-
-      #preview img.selected {
-        opacity: 0.4;
-        border: 1.5px solid var(--error);
-      }
-
-      /* ---------- Buttons ---------- */
 
       button {
-        font-family: inherit;
-        font-size: 13.5px;
+        font-family: var(--font-sans);
+        font-size: var(--fs-body);
         font-weight: 500;
+        line-height: 1.2;
         border: none;
         border-radius: 3px;
         cursor: pointer;
@@ -248,30 +207,19 @@
         background: var(--ink);
         transition: background 0.15s ease;
       }
-
       button:hover:not(:disabled) {
         background: #35342f;
       }
-
       button:disabled {
         cursor: not-allowed;
-        opacity: 0.5;
+        opacity: 0.55;
       }
-
       button.primary {
         background: var(--accent);
       }
       button.primary:hover:not(:disabled) {
         background: #253d31;
       }
-
-      button.danger {
-        background: var(--error);
-      }
-      button.danger:hover:not(:disabled) {
-        background: #86331f;
-      }
-
       button.ghost {
         background: transparent;
         color: var(--ink);
@@ -282,24 +230,15 @@
         border-color: #c7c3b8;
         background: var(--surface);
       }
-
-      .button-row {
+      .btn-row {
         display: flex;
         gap: 10px;
-        margin-top: 14px;
-        flex-wrap: wrap;
+        margin-top: 10px;
+        flex: none;
       }
-
-      .button-row button {
+      .btn-row button {
         flex: 1;
-        min-width: 140px;
       }
-
-      #startCaptureBtn {
-        width: 100%;
-        margin-top: 4px;
-      }
-
       .button-spinner {
         display: none;
         width: 13px;
@@ -309,71 +248,515 @@
         border-radius: 50%;
         animation: spin 0.7s linear infinite;
         margin-right: 8px;
+      }
+      button.is-loading .button-spinner {
+        display: inline-block;
         vertical-align: -2px;
       }
-
       @keyframes spin {
         to {
           transform: rotate(360deg);
         }
       }
 
-      /* ---------- Textarea ---------- */
-
       textarea {
+        flex: 1;
         width: 100%;
-        min-height: 190px;
-        resize: vertical;
+        min-height: 0;
+        resize: none;
         border: 1px solid var(--line);
         border-radius: 3px;
         background: var(--surface);
-        padding: 16px;
-        font-family: "IBM Plex Mono", ui-monospace, monospace;
-        font-size: 12.5px;
+        padding: 14px 16px;
+        font-family: var(--font-mono);
+        font-size: var(--fs-mono);
         line-height: 1.7;
         color: var(--ink);
       }
-
       textarea::placeholder {
         color: #a9a69c;
       }
-
       textarea:focus {
         outline: none;
         border-color: var(--accent);
       }
-
-      /* ---------- File status ---------- */
-
-      .status {
-        margin-top: 18px;
-        font-size: 13px;
-        color: var(--ink-soft);
-        min-height: 18px;
+      textarea:disabled {
+        color: #a9a69c;
+        background: #fafaf8;
       }
 
-      /* ---------- Footer ---------- */
+      #stepExport .step-body {
+        flex: none;
+      }
+      #stepExport .step-body > p {
+        margin-bottom: 0;
+      }
+      #stepExport .btn-row {
+        margin-top: 12px;
+      }
+
+      .status-line {
+        margin-top: 10px;
+        font-size: var(--fs-small);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 16px;
+        flex: none;
+      }
+      .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--ink-soft);
+        flex: none;
+      }
+      .status-line.ok {
+        color: var(--accent);
+      }
+      .status-line.ok .status-dot {
+        background: var(--accent);
+      }
+      .status-line.error {
+        color: var(--error);
+      }
+      .status-line.error .status-dot {
+        background: var(--error);
+      }
 
       .foot {
-        margin-top: 48px;
-        font-size: 12.5px;
+        grid-area: foot;
+        margin: 0;
+        font-size: var(--fs-small);
         color: var(--ink-soft);
         text-align: center;
       }
 
-      @media (max-width: 520px) {
-        .page {
-          padding: 48px 18px 80px;
+      /* ---------- Original small-screen rules (unchanged) ---------- */
+      @media (max-width: 860px) {
+        :root {
+          --gutter: 16px;
+          --fs-title: 22px;
+          --fs-lead: 13.5px;
         }
-        .step {
-          grid-template-columns: 28px 1fr;
-          gap: 14px;
+        .page {
+          padding-top: 14px;
+          padding-bottom: 10px;
+          row-gap: 10px;
+          grid-template-columns: minmax(0, 1fr);
+          grid-template-rows: auto auto auto minmax(0, 1fr) auto auto;
+          grid-template-areas: "masthead" "intro" "capture" "edit" "export" "foot";
+        }
+        .masthead {
+          padding-bottom: 10px;
+          margin-bottom: 0;
+        }
+        .masthead p {
+          display: none;
+        }
+        .intro {
+          padding: 0 0 6px;
         }
         .intro h1 {
-          font-size: 26px;
+          font-size: 20px;
+        }
+        .intro h1 {
+          margin-bottom: 0;
+          max-width: none;
+        }
+        .intro p {
+          display: none;
+        }
+        .step {
+          padding: 12px 14px;
+        }
+        .step-number {
+          margin-bottom: 6px;
+        }
+        .step-body > p {
+          display: none;
+        }
+        #preview {
+          height: 60px;
+          padding: 6px;
+        }
+        .btn-row {
+          margin-top: 8px;
+        }
+        button {
+          padding: 9px 14px;
+        }
+        .foot {
+          font-size: 11.5px;
+        }
+      }
+
+      /* ---------- MOBILE ONLY: scrolling page, touch-friendly (desktop untouched) ---------- */
+      @media (max-width: 860px) {
+        html,
+        body {
+          height: auto;
+          min-height: 100%;
+          overflow-x: hidden;
+          overflow-y: auto;
+        }
+        .page {
+          height: auto;
+          min-height: 100vh;
+          grid-template-rows: none;
+          grid-auto-rows: auto;
+          row-gap: 14px;
+          padding-top: max(14px, env(safe-area-inset-top));
+          padding-bottom: max(16px, env(safe-area-inset-bottom));
+        }
+        .masthead {
+          flex-wrap: wrap;
+          gap: 4px 12px;
+          padding-bottom: 12px;
+        }
+        .mark span {
+          font-size: 19px;
+        }
+        .intro {
+          padding: 0;
+        }
+        .intro h1 {
+          font-size: 24px;
+          line-height: 1.25;
+          margin-bottom: 8px;
+        }
+        .intro p {
+          display: block;
+          font-size: 14px;
+          line-height: 1.55;
+        }
+        .step {
+          padding: 16px;
+          overflow: visible;
+        }
+        .step-body > p {
+          display: block;
+        }
+        .step-body h2 {
+          font-size: 16px;
+        }
+
+        /* camera: sized by aspect ratio, never taller than the screen */
+
+        #preview {
+          height: auto;
+          min-height: 108px;
+          padding: 12px;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .btn-row {
+          margin-top: 12px;
+        }
+        button {
+          min-height: 46px;
+          font-size: 14.5px;
+          padding: 12px 16px;
+        }
+        button.ghost {
+          padding: 12px 16px;
+        }
+        textarea {
+          flex: none;
+          min-height: 260px;
+          height: 44vh;
+          max-height: 520px;
+          font-size: 14px;
+          line-height: 1.65;
+          padding: 14px;
+          resize: vertical;
+          white-space: pre-wrap;
+          overflow-wrap: anywhere;
+          word-break: break-word;
+        }
+        .status-line {
+          font-size: 13px;
+          line-height: 1.4;
+          align-items: flex-start;
+          overflow-wrap: anywhere;
+        }
+        .status-dot {
+          margin-top: 5px;
+        }
+        .foot {
+          font-size: 12px;
+          padding-bottom: 4px;
+        }
+      }
+      @media (max-width: 480px) {
+        .btn-row {
+          flex-direction: column;
+        }
+        .intro h1 {
+          font-size: 22px;
+        }
+        .step {
+          padding: 14px;
+        }
+      }
+      @media (max-width: 360px) {
+        :root {
+          --gutter: 12px;
+        }
+        .mark span {
+          font-size: 17px;
+        }
+        .intro h1 {
+          font-size: 20px;
+        }
+      }
+
+      /* ---------- Shared navbar (identical on Upload / Camera / Capture) ---------- */
+      .masthead {
+        position: relative;
+        align-items: center;
+        gap: 16px;
+      }
+      a.mark {
+        text-decoration: none;
+        color: var(--ink);
+        min-width: 0;
+        border-radius: 3px;
+      }
+      a.mark:focus-visible,
+      .nav-links a:focus-visible,
+      button.nav-toggle:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        margin-left: auto;
+      }
+      .nav-links a {
+        display: block;
+        text-decoration: none;
+        color: var(--ink-soft);
+        font-size: 13px;
+        font-weight: 500;
+        line-height: 1.2;
+        padding: 8px 12px;
+        border-radius: 3px;
+        white-space: nowrap;
+        transition:
+          background 0.15s ease,
+          color 0.15s ease;
+      }
+      .nav-links a:hover {
+        background: #fbfaf7;
+        color: var(--ink);
+      }
+      .nav-links a[aria-current="page"] {
+        color: var(--accent);
+        background: var(--accent-soft);
+      }
+      .nav-links a small {
+        display: none;
+      }
+      button.nav-toggle {
+        display: none;
+        flex: none;
+        width: 44px;
+        height: 44px;
+        min-height: 44px;
+        padding: 0;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        color: var(--ink);
+        border: 1px solid var(--line);
+        border-radius: 3px;
+      }
+      button.nav-toggle:hover:not(:disabled) {
+        background: var(--surface);
+        border-color: #c7c3b8;
+      }
+      button.nav-toggle svg {
+        width: 22px;
+        height: 22px;
+      }
+      button.nav-toggle .icon-close {
+        display: none;
+      }
+      button.nav-toggle[aria-expanded="true"] .icon-open {
+        display: none;
+      }
+      button.nav-toggle[aria-expanded="true"] .icon-close {
+        display: block;
+      }
+      @media (max-width: 860px) {
+        .masthead {
+          flex-wrap: nowrap;
+          align-items: center;
+        }
+        .mark span {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        button.nav-toggle {
+          display: inline-flex;
+        }
+        .nav-links {
+          display: none;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          z-index: 50;
+          margin: 0;
+          flex-direction: column;
+          align-items: stretch;
+          gap: 0;
+          background: var(--surface);
+          border: 1px solid var(--line);
+          border-radius: 3px;
+          box-shadow: 0 12px 28px rgba(28, 27, 24, 0.14);
+          overflow: hidden;
+        }
+        .nav-links.open {
+          display: flex;
+        }
+        .nav-links a {
+          min-height: 56px;
+          padding: 12px 16px;
+          font-size: 15px;
+          white-space: normal;
+          border-radius: 0;
+        }
+        .nav-links a + a {
+          border-top: 1px solid var(--line);
+        }
+        .nav-links a small {
+          display: block;
+          margin-top: 3px;
+          font-size: 12.5px;
+          font-weight: 400;
+          color: var(--ink-soft);
+        }
+      }
+
+      /* ---------- Raspberry Pi capture page additions (same tokens as Upload/Camera) ---------- */
+      button.danger {
+        background: var(--error);
+      }
+      button.danger:hover:not(:disabled) {
+        background: #86331f;
+      }
+      .status-panel {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1px;
+        background: var(--line);
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        overflow: hidden;
+        margin-bottom: 4px;
+        flex: none;
+      }
+      .status-cell {
+        background: var(--surface);
+        padding: 10px 12px;
+        min-width: 0;
+      }
+      .status-cell .label {
+        display: block;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--ink-soft);
+        margin-bottom: 4px;
+      }
+      .status-cell .value {
+        font-family: var(--font-mono);
+        font-size: var(--fs-mono);
+        overflow-wrap: anywhere;
+      }
+      .status-cell .value.dot::before {
+        content: "";
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--ink-soft);
+        margin-right: 7px;
+      }
+      .status-cell .value.dot.on::before {
+        background: var(--accent);
+      }
+      #startCaptureBtn {
+        width: 100%;
+        flex: none;
+        margin-top: 10px;
+      }
+      #preview {
+        flex: 1;
+        min-height: 0;
+        height: auto;
+        flex-wrap: wrap;
+        align-content: flex-start;
+        overflow-x: hidden;
+        overflow-y: auto;
+      }
+      #preview img {
+        flex: 0 0 auto;
+        width: 84px;
+        height: 84px;
+        object-fit: cover;
+        border-radius: 2px;
+        border: 1px solid var(--line);
+        cursor: pointer;
+        transition:
+          opacity 0.15s ease,
+          border-color 0.15s ease;
+      }
+      #preview img:hover {
+        border-color: #c7c3b8;
+      }
+      #preview img.selected {
+        opacity: 0.4;
+        border: 1.5px solid var(--error);
+      }
+      .step-body > p.hint {
+        font-size: var(--fs-small);
+        margin: 8px 0 0;
+      }
+      @media (max-width: 860px) {
+        #preview {
+          flex: none;
+          min-height: 108px;
+          max-height: 300px;
+        }
+        .step-body > p.hint {
+          font-size: 13px;
+          line-height: 1.4;
+        }
+      }
+      @media (max-width: 480px) {
+        .status-cell {
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          gap: 10px;
         }
         .status-panel {
-          grid-template-columns: 1fr;
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .status-cell .label {
+          margin: 0;
+        }
+      }
+      @media (max-width: 360px) {
+        #preview img {
+          width: 72px;
+          height: 72px;
         }
       }
     </style>
@@ -381,7 +764,7 @@
   <body>
     <div class="page">
       <header class="masthead">
-        <div class="mark">
+        <a class="mark" href="/" aria-label="Lecture-to-Document — Home">
           <svg
             viewBox="0 0 24 24"
             fill="none"
@@ -416,64 +799,88 @@
             />
           </svg>
           <span>Lecture-to-Document</span>
-        </div>
-        <p>Device → text → document</p>
+        </a>
+        <button
+          type="button"
+          class="nav-toggle"
+          id="navToggle"
+          aria-label="Menu"
+          aria-expanded="false"
+          aria-controls="navLinks"
+        >
+          <svg class="icon-open" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M4 7H20M4 12H20M4 17H20"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+            />
+          </svg>
+          <svg class="icon-close" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M6 6L18 18M18 6L6 18"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+        <nav class="nav-links" id="navLinks" aria-label="Main">
+          <a href="/test"
+            >Upload photos<small>Choose images from this device</small></a
+          >
+          <a href="/camera"
+            >Device Camera<small>Use this phone or laptop's camera</small></a
+          >
+          <a href="/#capture" id="navCapture" aria-current="page"
+            >Raspberry Pi Capture<small
+              >Use the connected Raspberry Pi</small
+            ></a
+          >
+        </nav>
       </header>
 
       <section class="intro">
-        <h1>Capture pages from your device, then turn them into a document.</h1>
+        <h1>Turn Raspberry Pi captures into a document you can edit.</h1>
         <p>
-          Start a capture session on the connected device, review what it picked
-          up, then extract the text and export it as DOCX or PDF.
+          Start a capture session on the connected Raspberry Pi, review what it
+          picked up, then extract the text and export it as DOCX or PDF.
         </p>
       </section>
 
-      <div class="status-panel" id="captureStatusPanel">
-        <div class="status-cell">
-          <span class="label">Capture status</span>
-          <span class="value" id="captureStatus">Idle</span>
-        </div>
-        <div class="status-cell">
-          <span class="label">Connected</span>
-          <span class="value dot" id="connectedStatus">No</span>
-        </div>
-        <div class="status-cell">
-          <span class="label">Last seen</span>
-          <span class="value" id="lastSeen">–</span>
-        </div>
-      </div>
-
-      <div class="step">
+      <div class="step is-active" id="stepCapture">
         <div class="step-number">01</div>
         <div class="step-body">
           <h2>Capture</h2>
-          <p>Start capturing once the device shows as connected above.</p>
+          <p>Start capturing once the Pi shows as connected.</p>
 
-          <button id="startCaptureBtn" disabled>
-            <span class="button-spinner" id="startSpinner"></span>Start
-            capturing
-          </button>
-
-          <div class="button-row" id="captureButtons" style="display: none">
-            <button id="pauseCaptureBtn" class="primary">
-              <span class="button-spinner" id="pauseSpinner"></span>Pause
-              capture
-            </button>
-            <button id="finishCaptureBtn" class="danger">
-              <span class="button-spinner" id="finishSpinner"></span>Finish
-              capture
-            </button>
+          <div class="status-panel" id="captureStatusPanel">
+            <div class="status-cell">
+              <span class="label">Capture status</span>
+              <span class="value" id="captureStatus">Idle</span>
+            </div>
+            <div class="status-cell">
+              <span class="label">Connected</span>
+              <span class="value dot" id="connectedStatus">No</span>
+            </div>
+            <div class="status-cell">
+              <span class="label">Last seen</span>
+              <span class="value" id="lastSeen">–</span>
+            </div>
           </div>
 
-          <div class="button-row" id="postCaptureButtons" style="display: none">
+          <button id="startCaptureBtn" disabled>Start capturing</button>
+
+          <div class="btn-row" id="captureButtons" style="display: none">
+            <button id="pauseCaptureBtn" class="primary">Pause capture</button>
+            <button id="finishCaptureBtn" class="danger">Finish capture</button>
+          </div>
+
+          <div class="btn-row" id="postCaptureButtons" style="display: none">
             <button id="deleteCapturesBtn" class="ghost">
-              <span class="button-spinner" id="deleteSpinner"></span>Delete
-              captures
+              Delete captures
             </button>
-            <button id="extractTextBtn" class="primary">
-              <span class="button-spinner" id="extractSpinner"></span>Extract
-              text
-            </button>
+            <button id="extractTextBtn" class="primary">Extract text</button>
           </div>
 
           <div id="preview"></div>
@@ -483,12 +890,11 @@
         </div>
       </div>
 
-      <div class="step">
+      <div class="step" id="stepEdit">
         <div class="step-number">02</div>
         <div class="step-body">
-          <h2>Review</h2>
+          <h2>Review the text</h2>
           <p>Fix anything the extraction got wrong before you export.</p>
-
           <textarea
             id="docPreview"
             placeholder="Extracted text will appear here..."
@@ -496,22 +902,24 @@
         </div>
       </div>
 
-      <div class="step">
+      <div class="step" id="stepExport">
         <div class="step-number">03</div>
         <div class="step-body">
           <h2>Export</h2>
           <p>Generate a document, then save it to your computer.</p>
 
-          <div class="button-row" id="generateButtons" style="display: none">
+          <div class="btn-row" id="generateButtons" style="display: none">
             <button id="generateDocxBtn" class="ghost">
-              <span class="button-spinner" id="docxSpinner"></span>Generate DOCX
+              <span class="button-spinner"></span
+              ><span class="btn-label">Generate DOCX</span>
             </button>
             <button id="generatePdfBtn" class="ghost">
-              <span class="button-spinner" id="pdfSpinner"></span>Generate PDF
+              <span class="button-spinner"></span
+              ><span class="btn-label">Generate PDF</span>
             </button>
           </div>
 
-          <div class="button-row">
+          <div class="btn-row">
             <button
               id="downloadBtn"
               class="primary"
@@ -519,7 +927,7 @@
             ></button>
           </div>
 
-          <div class="status" id="fileStatus">Waiting for capture...</div>
+          <div class="status-line" id="fileStatus">Waiting for capture...</div>
         </div>
       </div>
 
@@ -532,6 +940,10 @@
       const pathParts = window.location.pathname.split("/").filter((p) => p);
       const DEVICE_ID = pathParts[0] || "default_device";
       const API_URL = `${window.location.origin}/${DEVICE_ID}`;
+      // remember this device so the navbar's Raspberry Pi Capture link returns here
+      try {
+        localStorage.setItem("lastDeviceId", DEVICE_ID);
+      } catch {}
 
       const startBtn = document.getElementById("startCaptureBtn");
       const captureButtons = document.getElementById("captureButtons");
@@ -555,7 +967,7 @@
       // --- INITIAL STATE ---
       captureStatus.textContent = "Idle";
       connectedStatus.textContent = "No";
-      startBtn.disabled = true; // Start button is disabled until connected
+      startBtn.disabled = true;
       startBtn.style.display = "block";
       captureButtons.style.display = "none";
       postCaptureButtons.style.display = "none";
@@ -568,9 +980,16 @@
       let lastGeneratedBlob = null;
       let lastFileType = "";
 
-      // -------------------------------
-      // 1️⃣ Device heartbeat & status (every 5s)
-      // -------------------------------
+      // Remove all images stored for this device (used when the Pi disconnects)
+      async function deleteAllUploads() {
+        try {
+          await fetch(`${API_URL}/delete_all_uploads`, { method: "DELETE" });
+        } catch {}
+        previewDiv.innerHTML = "";
+        previewDiv.style.display = "none";
+      }
+
+      // 1) Device heartbeat & status (every 5s)
       async function updateDeviceStatus() {
         try {
           const res = await fetch(`${API_URL}/get_status`);
@@ -581,13 +1000,11 @@
           connectedStatus.classList.toggle("on", isConnected);
 
           if (!isConnected) {
-            // FORCE UI to disabled start capture
             forceIdleUI();
             captureStatus.textContent = "Idle";
             startBtn.disabled = true;
             startBtn.style.display = "block";
 
-            // Hide other buttons
             captureButtons.style.display = "none";
             postCaptureButtons.style.display = "none";
             generateButtons.style.display = "none";
@@ -597,25 +1014,21 @@
               "Device disconnected. Waiting for connection...";
             previewDiv.style.display = "none";
 
-            // Automatically delete all uploaded images
             if (captureStatus.textContent !== "Start") {
               await updateStatus("idle");
             }
             await deleteAllUploads();
           } else {
-            // Device connected → normal behavior
             captureStatus.textContent =
               device.status.charAt(0).toUpperCase() + device.status.slice(1);
             startBtn.disabled = !isConnected;
 
-            // Update last seen
             lastSeen.textContent = device.last_seen
               ? new Date(device.last_seen * 1000).toLocaleTimeString()
               : "-";
           }
         } catch (err) {
           console.error(err);
-          // Treat as disconnected
           forceIdleUI();
           await deleteAllUploads(true);
 
@@ -631,18 +1044,14 @@
           fileStatus.textContent =
             "Device disconnected. Waiting for connection...";
           previewDiv.style.display = "none";
-
-          // Auto-delete images in disconnected state
         }
       }
 
       function forceIdleUI() {
-        // Capture & connected status
         captureStatus.textContent = "Idle";
         connectedStatus.textContent = "No";
         connectedStatus.classList.remove("on");
 
-        // Buttons
         startBtn.disabled = true;
         startBtn.style.display = "block";
         captureButtons.style.display = "none";
@@ -650,15 +1059,12 @@
         generateButtons.style.display = "none";
         downloadBtn.style.display = "none";
 
-        // File status
         fileStatus.textContent =
           "Device disconnected. Waiting for connection...";
 
-        // Hide preview
         previewDiv.style.display = "none";
       }
 
-      // Poll status every 5 seconds
       setInterval(updateDeviceStatus, 5000);
       updateDeviceStatus();
 
@@ -675,16 +1081,13 @@
         updateUIByStatus(status);
       }
 
-      // -------------------------------
-      // 2️⃣ Preview uploaded images (every 5s)
-      // -------------------------------
+      // 2) Preview uploaded images (every 5s)
       async function fetchUploadedImages() {
         try {
           const res = await fetch(`${API_URL}/list_uploads`);
           if (!res.ok) throw new Error("Failed to fetch uploads");
           const data = await res.json();
 
-          // Remember selected images
           const selectedFiles = Array.from(
             previewDiv.querySelectorAll("img.selected"),
           ).map((img) => img.src.split("/").pop());
@@ -704,7 +1107,6 @@
               const img = document.createElement("img");
               img.src = `${API_URL}/get_upload/${file}`;
 
-              // Restore selection
               if (selectedFiles.includes(file)) {
                 img.classList.add("selected");
               }
@@ -721,17 +1123,10 @@
       }
       setInterval(fetchUploadedImages, 5000);
 
-      // -------------------------------
-      // 3️⃣ Button actions
-      // -------------------------------
+      // 3) Button actions
       startBtn.addEventListener("click", async () => {
-        // Hide post-capture buttons (delete & extract)
         postCaptureButtons.style.display = "none";
-
-        // Show capture buttons
         captureButtons.style.display = "flex";
-
-        // Hide "Start Capturing" since we’re actively capturing
         startBtn.style.display = "none";
 
         fileStatus.textContent = "Capturing images...";
@@ -748,17 +1143,9 @@
       });
 
       finishBtn.addEventListener("click", async () => {
-        // Hide capture buttons
         captureButtons.style.display = "none";
-
-        // Show post-capture buttons (delete & extract)
         postCaptureButtons.style.display = "flex";
-
-        // Show "Start Capturing" again so user can start a new session
         startBtn.style.display = "block";
-
-        // Clear preview (optional)
-        // previewDiv.innerHTML = ""; // You can keep images visible if desired
 
         fileStatus.textContent =
           "Capture finished. You can delete or extract images.";
@@ -800,7 +1187,6 @@
 
           const data = await res.json();
 
-          // Remove deleted images from preview
           filesToDelete.forEach((f) => {
             const img = previewDiv.querySelector(`img[src$="${f}"]`);
             if (img) img.remove();
@@ -826,11 +1212,10 @@
           const formData = new FormData();
           const imgs = Array.from(previewDiv.querySelectorAll("img")).filter(
             (img) => !img.classList.contains("selected"),
-          ); // skip selected
+          );
           if (imgs.length === 0) {
             return alert("No images selected for extraction!");
           }
-          // Convert preview images to blobs
 
           for (const img of imgs) {
             const res = await fetch(img.src);
@@ -842,7 +1227,6 @@
             );
           }
 
-          // Send actual files to backend
           const res = await fetch(`${API_URL}/extract_text`, {
             method: "POST",
             body: formData,
@@ -867,7 +1251,8 @@
         const btn = type === "docx" ? generateDocxBtn : generatePdfBtn;
         btn.disabled = true;
         btn.querySelector(".button-spinner").style.display = "inline-block";
-        btn.innerText = ` Generating ${type.toUpperCase()}...`;
+        btn.querySelector(".btn-label").textContent =
+          `Generating ${type.toUpperCase()}...`;
 
         const formData = new FormData();
         formData.append("text", text);
@@ -890,7 +1275,8 @@
         } finally {
           btn.disabled = false;
           btn.querySelector(".button-spinner").style.display = "none";
-          btn.innerText = type === "docx" ? "Generate DOCX" : "Generate PDF";
+          btn.querySelector(".btn-label").textContent =
+            type === "docx" ? "Generate DOCX" : "Generate PDF";
         }
       }
 
@@ -910,75 +1296,22 @@
         fileStatus.textContent = `Downloaded ${lastFileType.toUpperCase()}!`;
       });
 
-      // -------------------------------
-      // 4️⃣ Auto-delete images when idle
-      // -------------------------------
-
-      // async function autoDeleteOnIdle(setRoleIdle = false) {
-      //   if (
-      //     captureStatus.textContent === "Idle" &&
-      //     previewDiv.children.length > 0 &&
-      //     captureButtons.style.display === "none"
-      //   ) {
-      //     console.log("Device is idle. Auto-deleting images...");
-      //     fileStatus.textContent = "Deleting captures...";
-
-      //     try {
-      //       const res = await fetch(`${API_URL}/delete_all_uploads`, {
-      //         method: "DELETE",
-      //       });
-
-      //       if (res.ok) {
-      //         const data = await res.json();
-
-      //         // Clear UI
-      //         previewDiv.innerHTML = "";
-      //         docPreview.value = "";
-      //         postCaptureButtons.style.display = "none";
-      //         generateButtons.style.display = "none";
-      //         downloadBtn.style.display = "none";
-      //         startBtn.style.display = "block";
-
-      //         fileStatus.textContent = `Deleted ${data.deleted_files.length} captures.`;
-
-      //         // Update backend status depending on reason
-      //         if (setRoleIdle) {
-      //           await updateStatus("idle"); // idle-triggered deletion
-      //         } else {
-      //           await updateStatus("delete"); // forced deletion (disconnect)
-      //         }
-      //       } else {
-      //         fileStatus.textContent = "Failed to delete captures.";
-      //       }
-      //     } catch (err) {
-      //       console.error(err);
-      //       fileStatus.textContent = "Error deleting captures.";
-      //     }
-      //   }
-      // }
-
-      // // Check idle every 5 seconds
-      // setInterval(autoDeleteOnIdle, 5000);
-
       function updateUIByStatus(status) {
         const normalizedStatus = status.toLowerCase();
 
         if (normalizedStatus === "start") {
-          // During capturing
           captureButtons.style.display = "flex";
-          postCaptureButtons.style.display = "none"; // hide delete & extract
-          generateButtons.style.display = "none"; // hide generate buttons
+          postCaptureButtons.style.display = "none";
+          generateButtons.style.display = "none";
           downloadBtn.style.display = "none";
-          previewDiv.style.display = "none"; // hide preview
+          previewDiv.style.display = "none";
         } else if (normalizedStatus === "pause") {
-          // Paused capture
           captureButtons.style.display = "flex";
           postCaptureButtons.style.display = "none";
           generateButtons.style.display = "none";
           downloadBtn.style.display = "none";
           previewDiv.style.display = "none";
         } else {
-          // Finished, idle, or other
           captureButtons.style.display = "none";
           postCaptureButtons.style.display =
             previewDiv.children.length > 0 ? "flex" : "none";
@@ -993,15 +1326,45 @@
       function makeImagesRemovable() {
         const imgs = Array.from(previewDiv.querySelectorAll("img"));
         imgs.forEach((img) => {
-          // Remove existing click handlers to avoid duplicates
           img.onclick = null;
-
-          // Click to toggle selection
           img.addEventListener("click", async () => {
             img.classList.toggle("selected");
           });
         });
       }
+
+      // ---- navbar: hamburger + Raspberry Pi Capture link ----
+      (function () {
+        const toggle = document.getElementById("navToggle");
+        const links = document.getElementById("navLinks");
+        function setOpen(open) {
+          links.classList.toggle("open", open);
+          toggle.setAttribute("aria-expanded", String(open));
+        }
+        toggle.addEventListener("click", () =>
+          setOpen(!links.classList.contains("open")),
+        );
+        document.addEventListener("click", (e) => {
+          if (!links.contains(e.target) && !toggle.contains(e.target))
+            setOpen(false);
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") setOpen(false);
+        });
+        window.addEventListener("resize", () => {
+          if (window.innerWidth > 860) setOpen(false);
+        });
+        document.getElementById("navCapture").addEventListener("click", (e) => {
+          let id = null;
+          try {
+            id = localStorage.getItem("lastDeviceId");
+          } catch {}
+          if (id && !["test", "camera"].includes(id.toLowerCase())) {
+            e.preventDefault();
+            window.location.href = "/" + encodeURIComponent(id);
+          } // otherwise falls through to /#capture, which asks for the device ID
+        });
+      })();
     </script>
   </body>
 </html>

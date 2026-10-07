@@ -20,11 +20,9 @@
         --accent: #2f4b3c;
         --error: #a13d2d;
       }
-
       * {
         box-sizing: border-box;
       }
-
       html,
       body {
         margin: 0;
@@ -32,7 +30,6 @@
         height: 100vh;
         overflow: hidden;
       }
-
       body {
         background: var(--paper);
         color: var(--ink);
@@ -43,17 +40,15 @@
           sans-serif;
         -webkit-font-smoothing: antialiased;
       }
-
       .page {
-        max-width: 1100px;
+        width: 100%;
+        max-width: 1280px;
         height: 100vh;
         margin: 0 auto;
-        padding: 32px 32px 24px;
+        padding: 24px 32px 16px;
         display: flex;
         flex-direction: column;
       }
-
-      /* ---------- Masthead ---------- */
 
       .masthead {
         display: flex;
@@ -64,39 +59,32 @@
         margin-bottom: 28px;
         flex: none;
       }
-
       .mark {
         display: flex;
         align-items: baseline;
         gap: 10px;
       }
-
       .mark svg {
         width: 22px;
         height: 22px;
         flex: none;
         transform: translateY(2px);
       }
-
       .mark span {
         font-family: "Source Serif 4", serif;
         font-size: 21px;
         font-weight: 600;
         letter-spacing: -0.01em;
       }
-
       .masthead p {
         margin: 0;
         font-size: 13px;
         color: var(--ink-soft);
       }
 
-      /* ---------- Hero ---------- */
-
       .hero {
         flex: none;
       }
-
       .hero h1 {
         font-family: "Source Serif 4", serif;
         font-weight: 400;
@@ -104,22 +92,19 @@
         line-height: 1.25;
         letter-spacing: -0.01em;
         margin: 0 0 12px;
-        max-width: 24ch;
+        max-width: 26ch;
       }
-
       .hero p {
         font-size: 15.5px;
         line-height: 1.6;
         color: var(--ink-soft);
-        max-width: 60ch;
+        max-width: 64ch;
         margin: 0 0 28px;
       }
 
-      /* ---------- Path cards ---------- */
-
       .paths {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
         gap: 1px;
         background: var(--line);
         border: 1px solid var(--line);
@@ -128,16 +113,14 @@
         flex: 1;
         min-height: 0;
       }
-
       .path {
         background: var(--surface);
-        padding: 28px 28px;
+        padding: 26px 24px;
         display: flex;
         flex-direction: column;
         text-decoration: none;
         color: inherit;
         transition: background 0.15s ease;
-        /* reset so the <button> card matches the <a> card */
         border: none;
         border-radius: 0;
         font: inherit;
@@ -146,16 +129,13 @@
         width: 100%;
         min-height: 0;
       }
-
       .path:hover {
         background: #fbfaf7;
       }
-
       .path:focus-visible {
         outline: 2px solid var(--accent);
         outline-offset: -2px;
       }
-
       .path-number {
         font-family: "IBM Plex Mono", ui-monospace, monospace;
         font-size: 11px;
@@ -163,31 +143,27 @@
         letter-spacing: 0.04em;
         margin-bottom: 16px;
       }
-
       .path svg {
-        width: 26px;
-        height: 26px;
+        width: 24px;
+        height: 24px;
         margin-bottom: 16px;
         color: var(--accent);
       }
-
       .path h2 {
-        font-size: 17px;
+        font-size: 16px;
         font-weight: 600;
         margin: 0 0 8px;
         letter-spacing: -0.01em;
       }
-
       .path p {
-        font-size: 13.5px;
+        font-size: 13px;
         line-height: 1.55;
         color: var(--ink-soft);
         margin: 0 0 16px;
         flex-grow: 1;
       }
-
       .path-cta {
-        font-size: 13.5px;
+        font-size: 13px;
         font-weight: 500;
         color: var(--ink);
         display: flex;
@@ -197,13 +173,10 @@
           color 0.15s ease,
           gap 0.15s ease;
       }
-
       .path:hover .path-cta {
         color: var(--accent);
         gap: 9px;
       }
-
-      /* ---------- Device ID dialog ---------- */
 
       dialog {
         border: 1px solid var(--line);
@@ -215,15 +188,12 @@
         color: var(--ink);
         box-shadow: 0 20px 50px rgba(28, 27, 24, 0.18);
       }
-
       dialog::backdrop {
         background: rgba(28, 27, 24, 0.38);
       }
-
       .dialog-body {
         padding: 28px;
       }
-
       .dialog-body h3 {
         font-family: "Source Serif 4", serif;
         font-weight: 600;
@@ -231,14 +201,12 @@
         letter-spacing: -0.01em;
         margin: 0 0 6px;
       }
-
       .dialog-body > p {
         font-size: 13.5px;
         line-height: 1.5;
         color: var(--ink-soft);
         margin: 0 0 20px;
       }
-
       .dialog-body label {
         display: block;
         font-size: 11px;
@@ -247,7 +215,6 @@
         color: var(--ink-soft);
         margin-bottom: 8px;
       }
-
       .dialog-body input {
         width: 100%;
         border: 1px solid var(--line);
@@ -258,29 +225,24 @@
         color: var(--ink);
         background: var(--surface);
       }
-
       .dialog-body input:focus {
         outline: none;
         border-color: var(--accent);
       }
-
       .dialog-body input.invalid {
         border-color: var(--error);
       }
-
       .field-error {
         min-height: 18px;
         margin: 8px 0 0;
         font-size: 12.5px;
         color: var(--error);
       }
-
       .dialog-actions {
         display: flex;
         gap: 10px;
         margin-top: 12px;
       }
-
       .dialog-actions button {
         flex: 1;
         font-family: inherit;
@@ -293,7 +255,6 @@
           background 0.15s ease,
           border-color 0.15s ease;
       }
-
       .btn-primary {
         border: none;
         background: var(--accent);
@@ -302,7 +263,6 @@
       .btn-primary:hover {
         background: #253d31;
       }
-
       .btn-ghost {
         border: 1px solid var(--line);
         background: transparent;
@@ -313,8 +273,6 @@
         background: #fbfaf7;
       }
 
-      /* ---------- Footer ---------- */
-
       .foot {
         margin: 16px 0 0;
         font-size: 12.5px;
@@ -323,7 +281,8 @@
         flex: none;
       }
 
-      @media (max-width: 560px) {
+      /* ---------- Original small-screen rules (unchanged) ---------- */
+      @media (max-width: 760px) {
         .page {
           padding: 20px 16px 16px;
         }
@@ -332,16 +291,17 @@
           margin-bottom: 18px;
         }
         .hero h1 {
-          font-size: 26px;
+          font-size: 24px;
           margin-bottom: 8px;
         }
         .hero p {
-          font-size: 14px;
+          font-size: 13.5px;
           line-height: 1.5;
           margin-bottom: 16px;
         }
         .paths {
           grid-template-columns: 1fr;
+          overflow-y: auto;
         }
         .path {
           padding: 16px 20px;
@@ -350,13 +310,113 @@
           margin-bottom: 8px;
         }
         .path svg {
-          width: 22px;
-          height: 22px;
+          width: 20px;
+          height: 20px;
           margin-bottom: 8px;
         }
         .path p {
           margin-bottom: 10px;
           font-size: 13px;
+        }
+      }
+
+      /* ---------- MOBILE ONLY: scrolling page, touch-friendly (desktop untouched) ---------- */
+      @media (max-width: 760px) {
+        html,
+        body {
+          height: auto;
+          min-height: 100%;
+          overflow-x: hidden;
+          overflow-y: auto;
+        }
+        .page {
+          height: auto;
+          min-height: 100vh;
+          padding-top: max(16px, env(safe-area-inset-top));
+          padding-bottom: max(16px, env(safe-area-inset-bottom));
+        }
+        .masthead {
+          flex-wrap: wrap;
+          gap: 4px 12px;
+        }
+        .mark span {
+          font-size: 19px;
+        }
+        .hero h1 {
+          font-size: 26px;
+          line-height: 1.22;
+          max-width: none;
+          margin-bottom: 10px;
+        }
+        .hero p {
+          font-size: 14px;
+          line-height: 1.55;
+          margin-bottom: 20px;
+        }
+
+        /* cards stack and grow with content instead of scrolling inside a box */
+        .paths {
+          flex: none;
+          overflow: visible;
+        }
+        .path {
+          min-height: 64px;
+          padding: 20px 18px;
+          overflow-wrap: anywhere;
+        }
+        .path h2 {
+          font-size: 16px;
+        }
+        .path p {
+          font-size: 13.5px;
+        }
+        .path-cta {
+          font-size: 14px;
+          min-height: 24px;
+        }
+
+        dialog {
+          width: calc(100% - 24px);
+          max-width: 420px;
+        }
+        .dialog-body {
+          padding: 22px 18px;
+        }
+        .dialog-body input {
+          font-size: 16px;
+          min-height: 46px;
+        } /* 16px stops iOS zoom-on-focus */
+        .dialog-actions button {
+          min-height: 46px;
+          font-size: 14.5px;
+        }
+        .field-error {
+          font-size: 13px;
+          line-height: 1.4;
+          overflow-wrap: anywhere;
+        }
+        .foot {
+          font-size: 12px;
+        }
+      }
+      @media (max-width: 480px) {
+        .hero h1 {
+          font-size: 24px;
+        }
+        .dialog-actions {
+          flex-direction: column-reverse;
+        }
+      }
+      @media (max-width: 360px) {
+        .page {
+          padding-left: 12px;
+          padding-right: 12px;
+        }
+        .mark span {
+          font-size: 17px;
+        }
+        .hero h1 {
+          font-size: 22px;
         }
       }
     </style>
@@ -406,9 +466,10 @@
       <section class="hero">
         <h1>Turn lecture photos into a document you can edit.</h1>
         <p>
-          Pick how your images get here — upload them yourself, or pull them in
-          from a connected capture device — then review the extracted text and
-          export it as DOCX or PDF.
+          Pick how your images get here — upload files from this device, shoot
+          them with this device's own camera, or pull them in from a Raspberry
+          Pi capture device — then review the extracted text and export it as
+          DOCX or PDF.
         </p>
       </section>
 
@@ -436,14 +497,44 @@
           </svg>
           <h2>Upload photos</h2>
           <p>
-            Select images straight from this device and extract text from them
+            Select images already on this device and extract text from them
             right away.
           </p>
           <span class="path-cta">Start uploading →</span>
         </a>
 
-        <button type="button" class="path" id="openCapture">
+        <a class="path" href="/camera">
           <div class="path-number">02</div>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M4 8.5C4 7.67157 4.67157 7 5.5 7H7.5L8.7 5H15.3L16.5 7H18.5C19.3284 7 20 7.67157 20 8.5V17.5C20 18.3284 19.3284 19 18.5 19H5.5C4.67157 19 4 18.3284 4 17.5V8.5Z"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <circle
+              cx="12"
+              cy="13"
+              r="3.2"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+          </svg>
+          <h2>Device Camera</h2>
+          <p>
+            Use the camera built into this phone or laptop and shoot pages
+            directly in your browser.
+          </p>
+          <span class="path-cta">Open device camera →</span>
+        </a>
+
+        <button type="button" class="path" id="openCapture">
+          <div class="path-number">03</div>
           <svg
             viewBox="0 0 24 24"
             fill="none"
@@ -473,12 +564,12 @@
               stroke-width="1.5"
             />
           </svg>
-          <h2>Capture device</h2>
+          <h2>Raspberry Pi Capture</h2>
           <p>
-            Start a session on your connected capture device and review what it
-            picks up.
+            Connect to your Raspberry Pi capture device, start a session on it,
+            and review the images it captures.
           </p>
-          <span class="path-cta">Open capture →</span>
+          <span class="path-cta">Open Pi capture →</span>
         </button>
       </div>
 
@@ -489,9 +580,9 @@
 
     <dialog id="deviceDialog" aria-labelledby="deviceTitle">
       <div class="dialog-body">
-        <h3 id="deviceTitle">Enter your device ID</h3>
+        <h3 id="deviceTitle">Enter your Raspberry Pi device ID</h3>
         <p>
-          Each capture device has its own ID. Enter yours to open its capture
+          Each Raspberry Pi has its own ID. Enter yours to open its capture
           page.
         </p>
 
@@ -511,7 +602,7 @@
             Cancel
           </button>
           <button type="button" class="btn-primary" id="goDevice">
-            Go to capture
+            Go to Pi capture
           </button>
         </div>
       </div>
@@ -522,6 +613,9 @@
       const input = document.getElementById("deviceInput");
       const errorEl = document.getElementById("deviceError");
       const STORAGE_KEY = "lastDeviceId";
+      // These two ids are reserved by the backend for the upload and camera
+      // pages, so they can't be used as capture device ids.
+      const RESERVED_IDS = new Set(["test", "camera"]);
 
       function setError(msg) {
         errorEl.textContent = msg;
@@ -543,6 +637,8 @@
         if (!id) return setError("Please enter a device ID.");
         if (!/^[A-Za-z0-9_-]+$/.test(id))
           return setError("Use only letters, numbers, dashes and underscores.");
+        if (RESERVED_IDS.has(id.toLowerCase()))
+          return setError(`"${id}" is reserved. Choose a different device ID.`);
 
         try {
           localStorage.setItem(STORAGE_KEY, id);
@@ -560,10 +656,12 @@
         if (e.key === "Enter") goToDevice();
       });
 
-      // Click on the backdrop closes the dialog
       dialog.addEventListener("click", (e) => {
         if (e.target === dialog) dialog.close();
       });
+
+      if (location.hash === "#capture")
+        document.getElementById("openCapture").click();
     </script>
   </body>
 </html>

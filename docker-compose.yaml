@@ -2,12 +2,17 @@ services:
   api:
     build: .
     container_name: lecture_to_document
+
     ports:
       - "8000:8000"
+
     volumes:
       - ./uploads:/app/uploads
       - ./output_docs:/app/output_docs
-      - ./app/firebase_key.json:/app/app/firebase_key.json:ro # Firebase key
+      - ./app/credentials.json:/app/app/credentials.json:ro
+      - ./app/firebase_key.json:/app/app/firebase_key.json:ro
+
     env_file:
       - .env
+
     restart: always

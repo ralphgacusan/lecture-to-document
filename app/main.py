@@ -52,20 +52,23 @@ def validate_device(device_id: str):
 @app.get("/")
 async def serve_index():
     return serve_file("index.html")
-
+ 
 @app.get("/{device_id}")
 async def serve_device_page(device_id: str):
     if device_id == "test":
-        return serve_file("upload.html")   # upload page
+        return serve_file("upload.html")    # manual upload page
+    if device_id == "camera":
+        return serve_file("camera.html")    # in-browser camera page
     validate_device(device_id)
-    return serve_file("capture.html")      # capture page for that device
-
-
+    return serve_file("capture.html")       # capture page for that device
+ 
+ 
 def serve_file(name: str):
     full_path = os.path.join("app", "static", name)
     if not os.path.exists(full_path):
         raise HTTPException(status_code=404, detail="File not found")
     return FileResponse(full_path)
+ 
 
 
 # Output folder
